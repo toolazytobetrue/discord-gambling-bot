@@ -90,14 +90,20 @@ function roll(key, text) {
 }
 exports.roll = roll;
 ;
-function embeddedInstance(title, description, color) {
+function embeddedInstance(title, description, color, img) {
     if (color === void 0) { color = '#00ff00'; }
+    if (img === void 0) { img = ''; }
     return new Discord.RichEmbed()
         .setTitle(title)
         .setDescription(description)
-        .setColor(color);
+        .setColor(color)
+        .setImage(img);
 }
 exports.embeddedInstance = embeddedInstance;
+function embeddedRollimage(img) {
+    return new Discord.RichEmbed().setImage(img);
+}
+exports.embeddedRollimage = embeddedRollimage;
 function embeddedError(description) {
     return embeddedInstance('Error:', description, '#ff0000');
 }

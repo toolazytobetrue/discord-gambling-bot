@@ -84,11 +84,16 @@ export function roll(key: string, text: string): number {
     return lucky;
 };
 
-export function embeddedInstance(title: string, description: string, color = '#00ff00') {
+export function embeddedInstance(title: string, description: string, color = '#00ff00', img = '') {
     return new Discord.RichEmbed()
         .setTitle(title)
         .setDescription(description)
-        .setColor(color);
+        .setColor(color)
+        .setImage(img);
+}
+
+export function embeddedRollimage(img: string) {
+    return new Discord.RichEmbed().setImage(img);
 }
 
 export function embeddedError(description: string) {

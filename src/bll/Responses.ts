@@ -2,7 +2,7 @@ import * as Discord from "discord.js";
 import { IDatabase } from "../interfaces/IDatabase";
 import { User } from "../models/User.model";
 import { IUser } from "../interfaces/IUSer";
-import { minifyBalance, getAmount, getMultiplier, getServer, generateHash, roll, embeddedInstance, embeddedError } from "../utils/Utils";
+import { minifyBalance, getAmount, getMultiplier, getServer, generateHash, roll, embeddedInstance, embeddedError, embeddedRollimage } from "../utils/Utils";
 import { IGames } from "../interfaces/IGames";
 export class Responses {
     server: Discord.Guild;
@@ -227,8 +227,15 @@ export class Responses {
                         reply += `__Client seed__: **${pair.UserSeed}**\n`;
                         reply += `__Result__: **${pair.Result}**\n`;
                         reply += `You have rolled a ${pair.Result}, you have ${pair.Result > 54 ? 'won' : 'lost'}!\n`;
-                        reply += `To verify the result: !verify **serverSeed** **clientSeed**`
-                        msg.reply(embeddedInstance('Game results', reply));
+                        reply += `To verify the result: !verify **serverSeed** **clientSeed**`;
+
+                        // let sentMessage = await msg.reply(embeddedRollimage('https://i.imgur.com/F67CPB8.gif'))
+                        // setTimeout(() => {
+                        //     sentMessage.edit(embeddedInstance('Game results', reply));
+                        // }, 3250);
+
+                        let sentMessage = await msg.reply(embeddedInstance('Game results', reply));
+
                     } catch (error) {
                         console.log(error);
                     }

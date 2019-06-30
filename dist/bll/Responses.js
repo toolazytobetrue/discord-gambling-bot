@@ -45,7 +45,7 @@ var Responses = /** @class */ (function () {
     }
     Responses.prototype.reply = function (msg) {
         return __awaiter(this, void 0, void 0, function () {
-            var messages, command, mentionedMember, _a, id, username, tag, _b, commands, user, user, depositRole, targetUser, osrs, targetCurrentBalance, amountToAdd, newBalance, updateBalance, error_1, depositRole, targetUser, osrs, targetCurrentBalance, amountToDeduce, newBalance, updateBalance, error_2, pairs, pair, reply, pairs, pair, result, newPair, reply, reply, targetUser, osrs, targetCurrentBalance, amountToDeduce, pairs, pair, profit, newBalance, updateBalance, voidPair, reply, error_3;
+            var messages, command, mentionedMember, _a, id, username, tag, _b, commands, user, user, depositRole, targetUser, osrs, targetCurrentBalance, amountToAdd, newBalance, updateBalance, error_1, depositRole, targetUser, osrs, targetCurrentBalance, amountToDeduce, newBalance, updateBalance, error_2, pairs, pair, reply, pairs, pair, result, newPair, reply, reply, targetUser, osrs, targetCurrentBalance, amountToDeduce, pairs, pair, profit, newBalance, updateBalance, voidPair, reply, sentMessage, error_3;
             return __generator(this, function (_c) {
                 switch (_c.label) {
                     case 0:
@@ -83,11 +83,11 @@ var Responses = /** @class */ (function () {
                             case '!54x2': return [3 /*break*/, 28];
                             case '@54x2': return [3 /*break*/, 28];
                         }
-                        return [3 /*break*/, 37];
+                        return [3 /*break*/, 38];
                     case 1:
                         commands = this.commands.join(', ');
                         msg.reply(Utils_1.embeddedInstance("Current available commands:", commands));
-                        return [3 /*break*/, 38];
+                        return [3 /*break*/, 39];
                     case 2:
                         if (!(messages.length === 1)) return [3 /*break*/, 4];
                         return [4 /*yield*/, this.userInstance.getUser(id)];
@@ -106,7 +106,7 @@ var Responses = /** @class */ (function () {
                     case 6:
                         msg.reply(Utils_1.embeddedError("Please select a user to check his wallet."));
                         _c.label = 7;
-                    case 7: return [3 /*break*/, 38];
+                    case 7: return [3 /*break*/, 39];
                     case 8:
                         if (!(messages.length === 4)) return [3 /*break*/, 13];
                         depositRole = msg.member.roles.find(function (role) { return role.id === process.env.DISCORD_CASHIER_GROUP_ID; });
@@ -153,7 +153,7 @@ var Responses = /** @class */ (function () {
                         error_1 = _c.sent();
                         console.log(error_1);
                         return [3 /*break*/, 13];
-                    case 13: return [3 /*break*/, 38];
+                    case 13: return [3 /*break*/, 39];
                     case 14:
                         if (!(messages.length === 4)) return [3 /*break*/, 19];
                         depositRole = msg.member.roles.find(function (role) { return role.id === process.env.DISCORD_CASHIER_GROUP_ID; });
@@ -204,7 +204,7 @@ var Responses = /** @class */ (function () {
                         error_2 = _c.sent();
                         console.log(error_2);
                         return [3 /*break*/, 19];
-                    case 19: return [3 /*break*/, 38];
+                    case 19: return [3 /*break*/, 39];
                     case 20:
                         if (!(messages.length === 1)) return [3 /*break*/, 22];
                         return [4 /*yield*/, this.userInstance.getUserPairs(id)];
@@ -215,7 +215,7 @@ var Responses = /** @class */ (function () {
                         reply += "__Client seed__: **" + pair.UserSeed + "**\n";
                         msg.reply(Utils_1.embeddedInstance("Current pair:", reply, '00ffef'));
                         _c.label = 22;
-                    case 22: return [3 /*break*/, 38];
+                    case 22: return [3 /*break*/, 39];
                     case 23:
                         if (!(messages.length === 1)) return [3 /*break*/, 26];
                         return [4 /*yield*/, this.userInstance.getUserPairs(id)];
@@ -230,7 +230,7 @@ var Responses = /** @class */ (function () {
                         reply += "__Client seed__: **" + newPair.UserSeed + "**\n";
                         msg.reply(Utils_1.embeddedInstance("New generated pair:", reply, '00ffef'));
                         _c.label = 26;
-                    case 26: return [3 /*break*/, 38];
+                    case 26: return [3 /*break*/, 39];
                     case 27:
                         if (messages.length === 3) {
                             reply = "__Server seed__: **" + messages[1] + "**\n";
@@ -239,9 +239,9 @@ var Responses = /** @class */ (function () {
                             reply += "__Result__: **" + Utils_1.roll(messages[1], messages[2]) + "**";
                             msg.reply(Utils_1.embeddedInstance("Provably Fair - Result verification:", reply, '00ffef'));
                         }
-                        return [3 /*break*/, 38];
+                        return [3 /*break*/, 39];
                     case 28:
-                        if (!(messages.length === 3)) return [3 /*break*/, 36];
+                        if (!(messages.length === 3)) return [3 /*break*/, 37];
                         // const depositRole: Discord.Role = sender.roles.find(role => role.id === process.env.DISCORD_CASHIER_GROUP_ID);
                         if (messages[1] !== '07' && messages[1] !== 'rs3') {
                             msg.reply(Utils_1.embeddedError("Invalid server."));
@@ -257,7 +257,7 @@ var Responses = /** @class */ (function () {
                         }
                         _c.label = 29;
                     case 29:
-                        _c.trys.push([29, 35, , 36]);
+                        _c.trys.push([29, 36, , 37]);
                         return [4 /*yield*/, this.userInstance.getUser(id)];
                     case 30:
                         targetUser = _c.sent();
@@ -289,15 +289,17 @@ var Responses = /** @class */ (function () {
                         reply += "__Result__: **" + pair.Result + "**\n";
                         reply += "You have rolled a " + pair.Result + ", you have " + (pair.Result > 54 ? 'won' : 'lost') + "!\n";
                         reply += "To verify the result: !verify **serverSeed** **clientSeed**";
-                        msg.reply(Utils_1.embeddedInstance('Game results', reply));
-                        return [3 /*break*/, 36];
+                        return [4 /*yield*/, msg.reply(Utils_1.embeddedInstance('Game results', reply))];
                     case 35:
+                        sentMessage = _c.sent();
+                        return [3 /*break*/, 37];
+                    case 36:
                         error_3 = _c.sent();
                         console.log(error_3);
-                        return [3 /*break*/, 36];
-                    case 36: return [3 /*break*/, 38];
-                    case 37: return [3 /*break*/, 38];
-                    case 38: return [2 /*return*/];
+                        return [3 /*break*/, 37];
+                    case 37: return [3 /*break*/, 39];
+                    case 38: return [3 /*break*/, 39];
+                    case 39: return [2 /*return*/];
                 }
             });
         });
