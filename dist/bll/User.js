@@ -135,6 +135,56 @@ var User = /** @class */ (function () {
             });
         });
     };
+    User.prototype.getUserStatistics = function (uuid, server) {
+        return __awaiter(this, void 0, void 0, function () {
+            var results, total;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.dbInstance.getUserStatistics(uuid, server)];
+                    case 1:
+                        results = _a.sent();
+                        total = 0;
+                        results.forEach(function (result) {
+                            total += result.Sum;
+                        });
+                        return [2 /*return*/, Promise.resolve(total)];
+                }
+            });
+        });
+    };
+    ;
+    User.prototype.getUserWeeklyStatistics = function (uuid, server, weekNumber) {
+        return __awaiter(this, void 0, void 0, function () {
+            var results, total;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.dbInstance.getUserWeeklyStatistics(uuid, server, weekNumber)];
+                    case 1:
+                        results = _a.sent();
+                        total = 0;
+                        results.forEach(function (result) {
+                            total += result.Sum;
+                        });
+                        return [2 /*return*/, Promise.resolve(total)];
+                }
+            });
+        });
+    };
+    ;
+    User.prototype.getUsersWeeklyStatistics = function (server, weekNumber) {
+        return __awaiter(this, void 0, void 0, function () {
+            var results;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.dbInstance.getUsersWeeklyStatistics(server, weekNumber)];
+                    case 1:
+                        results = _a.sent();
+                        return [2 /*return*/, Promise.resolve(results)];
+                }
+            });
+        });
+    };
+    ;
     return User;
 }());
 exports.User = User;

@@ -4,11 +4,16 @@ import { User } from "../models/User.model";
 import { IUser } from "../interfaces/IUSer";
 import { minifyBalance, getAmount, getMultiplier, getServer, generateHash, roll, embeddedInstance, embeddedError, embeddedRollimage } from "../utils/Utils";
 import { IGames } from "../interfaces/IGames";
+import moment from 'moment';
 export class Responses {
     server: Discord.Guild;
     userInstance: IUser;
     gamesInstance: IGames;
-    commands = ['!help', '@help', '!commands', '@commands', '!balance', '@balance', '!wallet', '@wallet', '!deposit', '@deposit', '!cashin', '@cashin', '!cashout', '@cashout', '!withdraw', '@withdraw', '!54x2', '@54x2', '!pair', '@pair', '!verify', '@verify', '!random', '@random'];
+    commands = ['!help', '@help', '!commands', '@commands', '!balance', '@balance',
+        '!wallet', '@wallet', '!deposit', '@deposit', '!cashin', '@cashin', '!cashout', '@cashout',
+        '!withdraw', '@withdraw', '!54x2', '@54x2', '!pair', '@pair', '!verify', '@verify', '!random', '@random',
+        '!statistics', '@statistics', '@weeklystatistics', '!weeklystatistics',
+        '!topweekly', '@topweekly'];
 
     constructor(server: Discord.Guild, userInstance: IUser, gamesInstance: IGames) {
         this.server = server;
@@ -20,6 +25,7 @@ export class Responses {
         const messages = msg.content.trim().toLowerCase().split(' ');
         const command = messages[0];
         const mentionedMember = msg.mentions.members.first();
+        const now: moment.Moment = moment();
         if (this.commands.indexOf(command) === -1) {
             return;
         }
@@ -154,6 +160,66 @@ export class Responses {
                     }
                 }
                 break;
+
+            case '!topweekly':
+            case '@topweekly':
+                if (messages.length == 2) {
+                    if (messages[1] !== '07' && messages[1] !== 'rs3') {
+                        msg.reply(embeddedError(`Invalid server to check statistics on.`));
+                        return;
+                    }
+                    let server = messages[1] === '07' ? 'OSRS' : 'RS3';
+                    const results = await this.userInstance.getUsersWeeklyStatistics(server, now.week())
+                    let reply = '';
+                    if (results.length === 1) {
+                        if (results[0].Id === null) {
+                            reply = 'No data to display'
+                        } else {
+                            results.forEach((result: any) => {
+                                const user = this.server.members.find(member => member.id === result.Id);
+                                reply += `**${user.displayName}** - ${minifyBalance(result.Sum)}\n`;
+                            });
+                        }
+                    }
+                    msg.reply(embeddedInstance(`__Top 10 players statistics (week ${now.week()})__:`, reply, '00ffef'));
+                }
+
+
+                break;
+
+            case '!weeklystatistics':
+            case '@weeklystatistics':
+                if (messages.length >= 2) {
+                    let userId = messages.length === 2 ? id : mentionedMember.user.id;
+                    if (messages[1] !== '07' && messages[1] !== 'rs3') {
+                        msg.reply(embeddedError(`Invalid server to check statistics on.`));
+                        return;
+                    }
+                    let user = messages.length === 2 ? msg.author.username : mentionedMember.displayName;
+                    let server = messages[1] === '07' ? 'OSRS' : 'RS3';
+                    let weeklyStatistics = await this.userInstance.getUserWeeklyStatistics(userId, server, now.week());
+                    const reply = `__Total profit__ (week ${now.week()}): **${minifyBalance(weeklyStatistics)}**\n`;
+                    msg.reply(embeddedInstance(`__Weekly statistics for__: **${user}**`, reply, '00ffef'));
+                }
+
+                break;
+
+            case '!statistics':
+            case '@statistics':
+                if (messages.length >= 2) {
+                    let userId = messages.length === 2 ? id : mentionedMember.user.id;
+                    if (messages[1] !== '07' && messages[1] !== 'rs3') {
+                        msg.reply(embeddedError(`Invalid server to check statistics on.`));
+                        return;
+                    }
+                    let user = messages.length === 2 ? msg.author.username : mentionedMember.displayName;
+                    let server = messages[1] === '07' ? 'OSRS' : 'RS3';
+                    let statistics = await this.userInstance.getUserStatistics(userId, server);
+                    const reply = `__Total profit__: **${minifyBalance(statistics)}**\n`;
+                    msg.reply(embeddedInstance(`__All time statistics for__: **${user}**`, reply, '00ffef'));
+                }
+                break;
+
             case '!pair':
             case '@pair':
                 if (messages.length === 1) {
@@ -229,12 +295,12 @@ export class Responses {
                         reply += `You have rolled a ${pair.Result}, you have ${pair.Result > 54 ? 'won' : 'lost'}!\n`;
                         reply += `To verify the result: !verify **serverSeed** **clientSeed**`;
 
-                        // let sentMessage = await msg.reply(embeddedRollimage('https://i.imgur.com/F67CPB8.gif'))
-                        // setTimeout(() => {
-                        //     sentMessage.edit(embeddedInstance('Game results', reply));
-                        // }, 3250);
+                        let sentMessage = await msg.reply(embeddedRollimage('https://i.imgur.com/F67CPB8.gif'))
+                        setTimeout(() => {
+                            sentMessage.edit(embeddedInstance('Game results', reply));
+                        }, 3250);
 
-                        let sentMessage = await msg.reply(embeddedInstance('Game results', reply));
+                        // let sentMessage = await msg.reply(embeddedInstance('Game results', reply));
 
                     } catch (error) {
                         console.log(error);

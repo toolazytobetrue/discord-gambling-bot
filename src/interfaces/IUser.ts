@@ -7,4 +7,7 @@ export interface IUser {
     getUser(uuid: string): Promise<User>;
     getUserPairs(uuid: string): Promise<mysql.MysqlError | any>;
     updateUser(uuid: string, osrs: boolean, newBalance: number): Promise<mysql.MysqlError | User>;
+    getUserStatistics(uuid: string, server: string): Promise<mysql.MysqlError | any>;
+    getUserWeeklyStatistics(uuid: string, server: string, weekNumber: number): Promise<mysql.MysqlError | any>;
+    getUsersWeeklyStatistics(server: string, weekNumber: number): Promise<mysql.MysqlError | any>;
 }

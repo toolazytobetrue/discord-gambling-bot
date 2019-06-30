@@ -27,7 +27,9 @@ CREATE TABLE Games (
     PairId int NOT NULL,
     Amount float NOT NULL,
     GameType int NOT NULL,
+    Server varchar(255) NOT NULL,
     DateAdded datetime default CURRENT_TIMESTAMP,
     PRIMARY KEY (Id),
     FOREIGN KEY (PairId) REFERENCES Pairs(Id)
 );
+
