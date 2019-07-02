@@ -5,26 +5,30 @@ import { IUser } from "../interfaces/IUSer";
 import { minifyBalance, getAmount, getMultiplier, getServer, generateHash, roll, embeddedInstance, embeddedError, embeddedRollimage } from "../utils/Utils";
 import { IGames } from "../interfaces/IGames";
 import moment from 'moment';
+import { ITransactions } from "../interfaces/ITransactions";
 export class Responses {
     server: Discord.Guild;
     userInstance: IUser;
     gamesInstance: IGames;
+    txInstance: ITransactions;
     commands = ['!help', '@help', '!commands', '@commands', '!balance', '@balance',
         '!wallet', '@wallet', '!deposit', '@deposit', '!cashin', '@cashin', '!cashout', '@cashout',
         '!withdraw', '@withdraw', '!54x2', '@54x2', '!pair', '@pair', '!verify', '@verify', '!random', '@random',
         '!statistics', '@statistics', '@weeklystatistics', '!weeklystatistics',
-        '!topweekly', '@topweekly'];
+        '!topweekly', '@topweekly', '!txs', '@txs', '!transactions', '@transactions',
+        '!92x10', '@92x10', '!75x3', '@75x3'];
 
-    constructor(server: Discord.Guild, userInstance: IUser, gamesInstance: IGames) {
+    constructor(server: Discord.Guild, userInstance: IUser, gamesInstance: IGames, txInstance: ITransactions) {
         this.server = server;
         this.userInstance = userInstance;
         this.gamesInstance = gamesInstance;
+        this.txInstance = txInstance;
     }
 
     async reply(msg: Discord.Message) {
         const messages = msg.content.trim().toLowerCase().split(' ');
         const command = messages[0];
-        const mentionedMember = msg.mentions.members.first();
+        const mentionedMember: any = msg.mentions.members !== null ? (msg.mentions.members.size > 0 ? msg.mentions.members.first() : null) : null;
         const now: moment.Moment = moment();
         if (this.commands.indexOf(command) === -1) {
             return;
@@ -46,6 +50,11 @@ export class Responses {
                     const user: User = await this.userInstance.getUser(id);
                     msg.reply(embeddedInstance(`${username}'s wallet:`, `RS3: ${minifyBalance(user.BalanceRs)}\nOSRS: ${minifyBalance(user.BalanceOsrs)}`));
                 } else if (messages.length === 2) {
+                    const depositRole: Discord.Role = msg.member.roles.find(role => role.id === process.env.DISCORD_CASHIER_GROUP_ID);
+                    if (!depositRole) {
+                        msg.reply(embeddedError(`You do not have access to view another user's wallet.`));
+                        return;
+                    }
                     if (mentionedMember) {
                         const user: User = await this.userInstance.getUser(mentionedMember.user.id);
                         msg.reply(embeddedInstance(`${mentionedMember.displayName}'s wallet:`, `RS3: ${minifyBalance(user.BalanceRs)}\nOSRS: ${minifyBalance(user.BalanceOsrs)}`));
@@ -101,6 +110,7 @@ export class Responses {
                         const newBalance = amountToAdd + targetCurrentBalance;
 
                         const updateBalance = await this.userInstance.updateUser(mentionedMember.user.id, osrs, newBalance);
+                        const addTx = await this.txInstance.addTransaction(id, mentionedMember.user.id, `${amountToAdd}`, getServer(osrs), true);
                         msg.reply(embeddedInstance(`CashIn`, `Successfully deposited ${messages[2]} to ${mentionedMember}'s ${getServer(osrs)} wallet.`));
 
                     } catch (error) {
@@ -154,6 +164,7 @@ export class Responses {
                             return;
                         }
                         const updateBalance = await this.userInstance.updateUser(mentionedMember.user.id, osrs, newBalance);
+                        const addTx = await this.txInstance.addTransaction(id, mentionedMember.user.id, `-${amountToDeduce}`, getServer(osrs), false);
                         msg.reply(embeddedInstance(`CashOut`, `Successfully withdrew ${messages[2]} from ${mentionedMember}'s ${getServer(osrs)} wallet.`));
                     } catch (error) {
                         console.log(error);
@@ -254,6 +265,10 @@ export class Responses {
                 break;
             case '!54x2':
             case '@54x2':
+            case '!75x3':
+            case '@75x3':
+            case '!92x10':
+            case '@92x10':
                 if (messages.length === 3) {
                     // const depositRole: Discord.Role = sender.roles.find(role => role.id === process.env.DISCORD_CASHIER_GROUP_ID);
                     if (messages[1] !== '07' && messages[1] !== 'rs3') {
@@ -274,34 +289,100 @@ export class Responses {
                     try {
                         const targetUser = await this.userInstance.getUser(id);
                         const osrs = messages[1] === '07';
-                        const targetCurrentBalance = osrs ? targetUser.BalanceOsrs : targetUser.BalanceRs;
+                        const targetBeforeBetBalance = osrs ? targetUser.BalanceOsrs : targetUser.BalanceRs;
                         const amountToDeduce = getAmount(messages[2]) * getMultiplier(messages[2]);
-                        if (targetCurrentBalance - amountToDeduce < 0) {
+                        if (targetBeforeBetBalance - amountToDeduce < 0) {
                             msg.reply(embeddedError(`Insufficient funds.`));
                             return;
                         }
 
+                        const beforeBetBalance = targetBeforeBetBalance - amountToDeduce;
+                        const updateBeforeBet = await this.userInstance.updateUser(id, osrs, beforeBetBalance);
+
+                        let rewardMultiplier = 1;
+                        let rewardMinimum = 54;
+                        switch (messages[0]) {
+                            case '!54x2':
+                            case '@54x2':
+                                rewardMultiplier = 2;
+                                rewardMinimum = 54;
+                                break;
+                            case '!75x3':
+                            case '@75x3':
+                                rewardMultiplier = 3;
+                                rewardMinimum = 75;
+                                break;
+                            case '!92x10':
+                            case '@92x10':
+                                rewardMultiplier = 10;
+                                rewardMinimum = 92;
+                                break;
+                        }
+
+                        const amountToAdd = +amountToDeduce * rewardMultiplier;
                         const pairs = await this.userInstance.getUserPairs(id);
                         const pair = pairs[0];
-                        const profit = pair.Result > 54 ? +amountToDeduce : -amountToDeduce;
-                        await this.gamesInstance.addGame(pair.Id, `${profit}`, '54x2', getServer(osrs));
-                        const newBalance = targetCurrentBalance + profit;
-                        const updateBalance = await this.userInstance.updateUser(id, osrs, newBalance);
+
+                        if (pair.Result > rewardMinimum) {
+                            await this.gamesInstance.addGame(pair.Id, `${amountToAdd}`, '54x2', getServer(osrs));
+                            const user = await this.userInstance.getUser(id);
+                            const targetAfterBetBalance = osrs ? user.BalanceOsrs : user.BalanceRs;
+                            const newBalance = targetAfterBetBalance + amountToAdd;
+                            const updateBalance = await this.userInstance.updateUser(id, osrs, newBalance);
+                        }
                         const voidPair = await this.gamesInstance.voidPair(pair.Id);
-                        let reply = `__Server seed revealed__: **${pair.ServerSeed}**\n`;
+
+                        let reply = `||__Server seed revealed__: **${pair.ServerSeed}**\n`;
                         reply += `__Server hash__: **${pair.ServerHash}**\n`;
                         reply += `__Client seed__: **${pair.UserSeed}**\n`;
                         reply += `__Result__: **${pair.Result}**\n`;
-                        reply += `You have rolled a ${pair.Result}, you have ${pair.Result > 54 ? 'won' : 'lost'}!\n`;
-                        reply += `To verify the result: !verify **serverSeed** **clientSeed**`;
+                        reply += `You have rolled a ${pair.Result}, you have ${pair.Result > rewardMinimum ? 'won ' + minifyBalance(+amountToAdd) : 'lost ' + minifyBalance(-amountToDeduce)}!\n`;
+                        reply += `To verify the result: !verify **serverSeed** **clientSeed**||`;
 
-                        let sentMessage = await msg.reply(embeddedRollimage('https://i.imgur.com/F67CPB8.gif'))
-                        setTimeout(() => {
-                            sentMessage.edit(embeddedInstance('Game results', reply));
-                        }, 3250);
+                        // let sentMessage: any = await msg.reply(embeddedRollimage('https://i.imgur.com/F67CPB8.gif'))
+                        // setTimeout(() => {
+                        //     sentMessage.edit(embeddedInstance('Game results', reply));
+                        // }, 3250);
 
-                        // let sentMessage = await msg.reply(embeddedInstance('Game results', reply));
+                        let sentMessage = await msg.reply(embeddedInstance('Game results', reply));
 
+                    } catch (error) {
+                        console.log(error);
+                    }
+                }
+                break;
+            case '!transactions':
+            case '@transactions':
+                if (messages.length === 3) {
+                    const depositRole: Discord.Role = msg.member.roles.find(role => role.id === process.env.DISCORD_CASHIER_GROUP_ID);
+                    if (messages[1] !== '07' && messages[1] !== 'rs3') {
+                        msg.reply(embeddedError(`Invalid server to view transactions.`));
+                        return;
+                    }
+
+                    if (messages[2] !== 'in' && messages[2] !== 'out') {
+                        msg.reply(embeddedError(`Invalid cashing method.`));
+                        return;
+                    }
+
+                    if (!depositRole) {
+                        msg.reply(embeddedError(`You do not have access to view transactions.`));
+                        return;
+                    }
+
+                    try {
+                        const osrs = messages[1] === '07';
+                        const cashin = messages[2] === 'in';
+                        const txs = await this.txInstance.getTransactions(getServer(osrs), cashin);
+
+                        let reply = '';
+                        txs.forEach((tx: any) => {
+                            const cashier = this.server.members.find(member => member.id === tx.CashierUuid);
+                            const member = this.server.members.find(member => member.id === tx.UserUuid);
+                            const verb = tx.CashIn ? 'cashed in' : 'cashed out';
+                            reply += `${cashier ? cashier : tx.CashierUuid} ${verb} ${minifyBalance(tx.Amount)} ${tx.Server} for ${member ? member : tx.UserUuid}\n`;
+                        });
+                        msg.author.send(embeddedInstance(`Last 50 transactions:`, reply));
                     } catch (error) {
                         console.log(error);
                     }

@@ -12,6 +12,8 @@ import { IResponses } from './interfaces/IResponses';
 import { IGames } from './interfaces/IGames';
 import { generateRandomString, generateHash, roll } from './utils/utils';
 import { Games } from './bll/Games';
+import { ITransactions } from './interfaces/ITransactions';
+import { Transactions } from './bll/Transactions';
 
 const options: mysql.ConnectionConfig = {
     host: process.env.DB_HOST,
@@ -26,6 +28,7 @@ let server: Discord.Guild;
 let userInstance: IUser;
 let gamesInstance: IGames;
 let responsesInstance: IResponses;
+let txInstance: ITransactions;
 
 
 client.on('ready', async () => {
@@ -34,7 +37,8 @@ client.on('ready', async () => {
     server = client.guilds.find(guid => guid.id === process.env.DISCORD_SERVER_ID);
     userInstance = new User.User(dbInstance, server);
     gamesInstance = new Games(dbInstance);
-    responsesInstance = new Responses.Responses(server, userInstance, gamesInstance);
+    txInstance = new Transactions(dbInstance, userInstance);
+    responsesInstance = new Responses.Responses(server, userInstance, gamesInstance, txInstance);
 
     if (!server) {
         return;

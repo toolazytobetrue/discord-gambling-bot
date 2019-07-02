@@ -1,6 +1,7 @@
 import * as mysql from 'mysql';
 import { IDatabase } from '../interfaces/IDatabase';
 export class Database implements IDatabase {
+
     connection: mysql.Connection;
     public constructor(options: string | mysql.ConnectionConfig) {
         this.connection = mysql.createConnection(options);
@@ -153,6 +154,34 @@ export class Database implements IDatabase {
     getUsersWeeklyStatistics(server: string, weekNumber: number): Promise<any> {
         return new Promise((resolve, reject) => {
             this.connection.query('SELECT u.Id, SUM(g.Amount) as Sum, WEEK(g.DateAdded) as Week FROM Games g JOIN Pairs p ON p.Id = g.PairId JOIN Users u ON u.Id = p.UserId AND g.server = ? AND WEEK(g.DateAdded) = ? ORDER BY Sum DESC LIMIT 10', [server, weekNumber], function (error, results, fields) {
+                if (error) {
+                    return reject(error);
+                }
+                return resolve(results);
+            });
+        });
+    }
+
+    addTransaction(CashierUuid: string, UserId: number, Amount: string, Server: string, CashIn: boolean): Promise<any> {
+        return new Promise((resolve, reject) => {
+            this.connection.query('INSERT INTO Transactions SET ?', {
+                CashierUuid,
+                UserId,
+                Amount,
+                Server,
+                CashIn
+            }, function (error, results, fields) {
+                if (error) {
+                    return reject(error);
+                }
+                return resolve(results);
+            });
+        });
+    }
+
+    getTransactions(Server: string, CashIn: boolean): Promise<any> {
+        return new Promise((resolve, reject) => {
+            this.connection.query('SELECT Transactions.Id, CashierUuid, Users.Uuid as UserUuid, Amount, Server, CashIn, Transactions.DateAdded FROM Transactions JOIN Users ON Users.Id = Transactions.UserId  WHERE Server = ? AND CashIn = ? ORDER BY DateAdded DESC LIMIT 50', [Server, CashIn], function (error, results, fields) {
                 if (error) {
                     return reject(error);
                 }

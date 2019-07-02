@@ -33,3 +33,14 @@ CREATE TABLE Games (
     FOREIGN KEY (PairId) REFERENCES Pairs(Id)
 );
 
+CREATE TABLE Transactions ( 
+    Id int NOT NULL AUTO_INCREMENT,
+    CashierUuid varchar(255) NOT NULL,
+    UserId int NOT NULL,
+    Amount float DEFAULT 0,
+    Server varchar(255) NOT NULL,
+    CashIn BOOLEAN DEFAULT FALSE,
+    DateAdded datetime default CURRENT_TIMESTAMP,
+    PRIMARY KEY (Id),
+    FOREIGN KEY (UserId) REFERENCES Users(Id)
+);

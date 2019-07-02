@@ -33,13 +33,13 @@ export function getServer(osrs: boolean): string {
 }
 
 export function minifyBalance(balance: number): string {
-    if (balance / 1e9 > 1) {
+    if (Math.abs(balance / 1e9) > 1) {
         return `${(balance / 1e9).toFixed(2)}b`;
     }
-    if (balance / 1e6 > 1) {
+    if (Math.abs(balance / 1e6) > 1) {
         return `${(balance / 1e6).toFixed(2)}m`;
     }
-    if (balance / 1e3 > 1) {
+    if (Math.abs(balance / 1e3) > 1) {
         return `${(balance / 1e3).toFixed(2)}k`;
     }
     return `${balance}`;

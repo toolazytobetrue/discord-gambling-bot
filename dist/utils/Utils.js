@@ -43,13 +43,13 @@ function getServer(osrs) {
 }
 exports.getServer = getServer;
 function minifyBalance(balance) {
-    if (balance / 1e9 > 1) {
+    if (Math.abs(balance / 1e9) > 1) {
         return (balance / 1e9).toFixed(2) + "b";
     }
-    if (balance / 1e6 > 1) {
+    if (Math.abs(balance / 1e6) > 1) {
         return (balance / 1e6).toFixed(2) + "m";
     }
-    if (balance / 1e3 > 1) {
+    if (Math.abs(balance / 1e3) > 1) {
         return (balance / 1e3).toFixed(2) + "k";
     }
     return "" + balance;

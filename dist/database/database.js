@@ -167,6 +167,34 @@ var Database = /** @class */ (function () {
             });
         });
     };
+    Database.prototype.addTransaction = function (CashierUuid, UserId, Amount, Server, CashIn) {
+        var _this = this;
+        return new Promise(function (resolve, reject) {
+            _this.connection.query('INSERT INTO Transactions SET ?', {
+                CashierUuid: CashierUuid,
+                UserId: UserId,
+                Amount: Amount,
+                Server: Server,
+                CashIn: CashIn
+            }, function (error, results, fields) {
+                if (error) {
+                    return reject(error);
+                }
+                return resolve(results);
+            });
+        });
+    };
+    Database.prototype.getTransactions = function (Server, CashIn) {
+        var _this = this;
+        return new Promise(function (resolve, reject) {
+            _this.connection.query('SELECT Transactions.Id, CashierUuid, Users.Uuid as UserUuid, Amount, Server, CashIn, Transactions.DateAdded FROM Transactions JOIN Users ON Users.Id = Transactions.UserId  WHERE Server = ? AND CashIn = ? ORDER BY DateAdded DESC LIMIT 50', [Server, CashIn], function (error, results, fields) {
+                if (error) {
+                    return reject(error);
+                }
+                return resolve(results);
+            });
+        });
+    };
     return Database;
 }());
 exports.Database = Database;

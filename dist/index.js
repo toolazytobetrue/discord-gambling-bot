@@ -50,6 +50,7 @@ var database = __importStar(require("./database/database"));
 var User = __importStar(require("./bll/User"));
 var Responses = __importStar(require("./bll/Responses"));
 var Games_1 = require("./bll/Games");
+var Transactions_1 = require("./bll/Transactions");
 var options = {
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
@@ -62,6 +63,7 @@ var server;
 var userInstance;
 var gamesInstance;
 var responsesInstance;
+var txInstance;
 client.on('ready', function () { return __awaiter(_this, void 0, void 0, function () {
     var _this = this;
     return __generator(this, function (_a) {
@@ -74,7 +76,8 @@ client.on('ready', function () { return __awaiter(_this, void 0, void 0, functio
                 server = client.guilds.find(function (guid) { return guid.id === process.env.DISCORD_SERVER_ID; });
                 userInstance = new User.User(dbInstance, server);
                 gamesInstance = new Games_1.Games(dbInstance);
-                responsesInstance = new Responses.Responses(server, userInstance, gamesInstance);
+                txInstance = new Transactions_1.Transactions(dbInstance, userInstance);
+                responsesInstance = new Responses.Responses(server, userInstance, gamesInstance, txInstance);
                 if (!server) {
                     return [2 /*return*/];
                 }
