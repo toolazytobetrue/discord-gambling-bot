@@ -339,12 +339,12 @@ export class Responses {
                         reply += `You have rolled a ${pair.Result}, you have ${pair.Result > rewardMinimum ? 'won ' + minifyBalance(+amountToAdd) : 'lost ' + minifyBalance(-amountToDeduce)}!\n`;
                         reply += `To verify the result: !verify **serverSeed** **clientSeed**||`;
 
-                        // let sentMessage: any = await msg.reply(embeddedRollimage('https://i.imgur.com/F67CPB8.gif'))
-                        // setTimeout(() => {
-                        //     sentMessage.edit(embeddedInstance('Game results', reply));
-                        // }, 3250);
+                        let sentMessage: any = await msg.reply(embeddedRollimage('https://i.imgur.com/F67CPB8.gif'))
+                        setTimeout(() => {
+                            sentMessage.edit(embeddedInstance('Game results', reply));
+                        }, 3250);
 
-                        let sentMessage = await msg.reply(embeddedInstance('Game results', reply));
+                        // let sentMessage = await msg.reply(embeddedInstance('Game results', reply));
 
                     } catch (error) {
                         console.log(error);

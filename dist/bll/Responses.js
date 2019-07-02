@@ -55,7 +55,7 @@ var Responses = /** @class */ (function () {
     }
     Responses.prototype.reply = function (msg) {
         return __awaiter(this, void 0, void 0, function () {
-            var messages, command, mentionedMember, now, _a, id, username, tag, _b, commands, user, depositRole, user, depositRole, targetUser, osrs, targetCurrentBalance, amountToAdd, newBalance, updateBalance, addTx, error_1, depositRole, targetUser, osrs, targetCurrentBalance, amountToDeduce, newBalance, updateBalance, addTx, error_2, server, results, reply_1, userId, user, server, weeklyStatistics, reply, userId, user, server, statistics, reply, pairs, pair, reply, pairs, pair, result, newPair, reply, reply, targetUser, osrs, targetBeforeBetBalance, amountToDeduce, beforeBetBalance, updateBeforeBet, rewardMultiplier, rewardMinimum, amountToAdd, pairs, pair, user, targetAfterBetBalance, newBalance, updateBalance, voidPair, reply, sentMessage, error_3, depositRole, osrs, cashin, txs, reply_2, error_4;
+            var messages, command, mentionedMember, now, _a, id, username, tag, _b, commands, user, depositRole, user, depositRole, targetUser, osrs, targetCurrentBalance, amountToAdd, newBalance, updateBalance, addTx, error_1, depositRole, targetUser, osrs, targetCurrentBalance, amountToDeduce, newBalance, updateBalance, addTx, error_2, server, results, reply_1, userId, user, server, weeklyStatistics, reply, userId, user, server, statistics, reply, pairs, pair, reply, pairs, pair, result, newPair, reply, reply, targetUser, osrs, targetBeforeBetBalance, amountToDeduce, beforeBetBalance, updateBeforeBet, rewardMultiplier, rewardMinimum, amountToAdd, pairs, pair, user, targetAfterBetBalance, newBalance, updateBalance, voidPair, reply_2, sentMessage_1, error_3, depositRole, osrs, cashin, txs, reply_3, error_4;
             var _this = this;
             return __generator(this, function (_c) {
                 switch (_c.label) {
@@ -404,15 +404,18 @@ var Responses = /** @class */ (function () {
                     case 47: return [4 /*yield*/, this.gamesInstance.voidPair(pair.Id)];
                     case 48:
                         voidPair = _c.sent();
-                        reply = "||__Server seed revealed__: **" + pair.ServerSeed + "**\n";
-                        reply += "__Server hash__: **" + pair.ServerHash + "**\n";
-                        reply += "__Client seed__: **" + pair.UserSeed + "**\n";
-                        reply += "__Result__: **" + pair.Result + "**\n";
-                        reply += "You have rolled a " + pair.Result + ", you have " + (pair.Result > rewardMinimum ? 'won ' + Utils_1.minifyBalance(+amountToAdd) : 'lost ' + Utils_1.minifyBalance(-amountToDeduce)) + "!\n";
-                        reply += "To verify the result: !verify **serverSeed** **clientSeed**||";
-                        return [4 /*yield*/, msg.reply(Utils_1.embeddedInstance('Game results', reply))];
+                        reply_2 = "||__Server seed revealed__: **" + pair.ServerSeed + "**\n";
+                        reply_2 += "__Server hash__: **" + pair.ServerHash + "**\n";
+                        reply_2 += "__Client seed__: **" + pair.UserSeed + "**\n";
+                        reply_2 += "__Result__: **" + pair.Result + "**\n";
+                        reply_2 += "You have rolled a " + pair.Result + ", you have " + (pair.Result > rewardMinimum ? 'won ' + Utils_1.minifyBalance(+amountToAdd) : 'lost ' + Utils_1.minifyBalance(-amountToDeduce)) + "!\n";
+                        reply_2 += "To verify the result: !verify **serverSeed** **clientSeed**||";
+                        return [4 /*yield*/, msg.reply(Utils_1.embeddedRollimage('https://i.imgur.com/F67CPB8.gif'))];
                     case 49:
-                        sentMessage = _c.sent();
+                        sentMessage_1 = _c.sent();
+                        setTimeout(function () {
+                            sentMessage_1.edit(Utils_1.embeddedInstance('Game results', reply_2));
+                        }, 3250);
                         return [3 /*break*/, 51];
                     case 50:
                         error_3 = _c.sent();
@@ -442,14 +445,14 @@ var Responses = /** @class */ (function () {
                         return [4 /*yield*/, this.txInstance.getTransactions(Utils_1.getServer(osrs), cashin)];
                     case 54:
                         txs = _c.sent();
-                        reply_2 = '';
+                        reply_3 = '';
                         txs.forEach(function (tx) {
                             var cashier = _this.server.members.find(function (member) { return member.id === tx.CashierUuid; });
                             var member = _this.server.members.find(function (member) { return member.id === tx.UserUuid; });
                             var verb = tx.CashIn ? 'cashed in' : 'cashed out';
-                            reply_2 += (cashier ? cashier : tx.CashierUuid) + " " + verb + " " + Utils_1.minifyBalance(tx.Amount) + " " + tx.Server + " for " + (member ? member : tx.UserUuid) + "\n";
+                            reply_3 += (cashier ? cashier : tx.CashierUuid) + " " + verb + " " + Utils_1.minifyBalance(tx.Amount) + " " + tx.Server + " for " + (member ? member : tx.UserUuid) + "\n";
                         });
-                        msg.author.send(Utils_1.embeddedInstance("Last 50 transactions:", reply_2));
+                        msg.author.send(Utils_1.embeddedInstance("Last 50 transactions:", reply_3));
                         return [3 /*break*/, 56];
                     case 55:
                         error_4 = _c.sent();
