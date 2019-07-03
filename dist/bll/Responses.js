@@ -50,7 +50,8 @@ var Responses = /** @class */ (function () {
             '!44x2', '@44x2', '!54x2', '@54x2',
             '!92x10', '@92x10', '!75x3', '@75x3',
             '!weekly', '@weekly',
-            '@weeklystatistics', '!weeklystatistics'
+            '@weeklystatistics', '!weeklystatistics',
+            '!allowed', '@allowed'
         ];
         this.server = server;
         this.userInstance = userInstance;
@@ -59,7 +60,7 @@ var Responses = /** @class */ (function () {
     }
     Responses.prototype.reply = function (msg) {
         return __awaiter(this, void 0, void 0, function () {
-            var messages, command, mentionedMember, now, _a, id, username, tag, _b, commands, user, depositRole, user, server, amount, depositRole, targetUser, osrs, targetCurrentBalance, amountToAdd, newBalance, updateBalance, addTx, error_1, server, amount, depositRole, targetUser, osrs, targetCurrentBalance, amountToDeduce, newBalance, updateBalance, addTx, error_2, server, serverType, results, reply, _loop_1, this_1, i, server, serverType, results, reply, _loop_2, this_2, i, pairs, pair, reply, pairs, pair, result, newPair, reply, reply, server, amount, targetUser, osrs, targetBeforeBetBalance, amountToDeduce, beforeBetBalance, updateBeforeBet, rewardMultiplier, rewardMinimum, amountToAdd, pairs, pair, winBool, user, targetAfterBetBalance, newBalance, updateBalance, voidPair, reply, sentMessage, error_3, server, inOut, depositRole, osrs, cashin, txs, reply_1, error_4;
+            var messages, command, mentionedMember, now, _a, id, username, tag, _b, commands, user, depositRole, user, server, amount, depositRole, processEnvMaxCashin, targetUser, osrs, targetCurrentBalance, amountToAdd, newBalance, updateBalance, addTx, error_1, server, amount, depositRole, processEnvMaxCashout, targetUser, osrs, targetCurrentBalance, amountToDeduce, newBalance, updateBalance, addTx, error_2, server, serverType, results, reply, _loop_1, this_1, i, server, serverType, results, reply, _loop_2, this_2, i, pairs, pair, reply, pairs, pair, result, newPair, reply, reply, processEnvMaxCashin, processEnvMaxCashout, reply, server, amount, targetUser, osrs, targetBeforeBetBalance, amountToDeduce, beforeBetBalance, updateBeforeBet, rewardMultiplier, rewardMinimum, amountToAdd, pairs, pair, winBool, user, targetAfterBetBalance, newBalance, updateBalance, voidPair, reply, sentMessage, error_3, server, inOut, depositRole, osrs, cashin, txs, reply_1, error_4;
             var _this = this;
             return __generator(this, function (_c) {
                 switch (_c.label) {
@@ -100,22 +101,24 @@ var Responses = /** @class */ (function () {
                             case '@random': return [3 /*break*/, 31];
                             case '!verify': return [3 /*break*/, 35];
                             case '@verify': return [3 /*break*/, 35];
-                            case '!44x2': return [3 /*break*/, 36];
-                            case '@44x2': return [3 /*break*/, 36];
-                            case '!54x2': return [3 /*break*/, 36];
-                            case '@54x2': return [3 /*break*/, 36];
-                            case '!75x3': return [3 /*break*/, 36];
-                            case '@75x3': return [3 /*break*/, 36];
-                            case '!92x10': return [3 /*break*/, 36];
-                            case '@92x10': return [3 /*break*/, 36];
-                            case '!transactions': return [3 /*break*/, 49];
-                            case '@transactions': return [3 /*break*/, 49];
+                            case '!allowed': return [3 /*break*/, 36];
+                            case '@allowed': return [3 /*break*/, 36];
+                            case '!44x2': return [3 /*break*/, 37];
+                            case '@44x2': return [3 /*break*/, 37];
+                            case '!54x2': return [3 /*break*/, 37];
+                            case '@54x2': return [3 /*break*/, 37];
+                            case '!75x3': return [3 /*break*/, 37];
+                            case '@75x3': return [3 /*break*/, 37];
+                            case '!92x10': return [3 /*break*/, 37];
+                            case '@92x10': return [3 /*break*/, 37];
+                            case '!transactions': return [3 /*break*/, 50];
+                            case '@transactions': return [3 /*break*/, 50];
                         }
-                        return [3 /*break*/, 54];
+                        return [3 /*break*/, 55];
                     case 1:
                         commands = this.commands.join(', ');
                         msg.reply(Utils_1.embeddedInstance("Current available commands:", commands));
-                        return [3 /*break*/, 55];
+                        return [3 /*break*/, 56];
                     case 2:
                         if (!(messages.length === 1)) return [3 /*break*/, 4];
                         return [4 /*yield*/, this.userInstance.getUser(id)];
@@ -139,7 +142,7 @@ var Responses = /** @class */ (function () {
                     case 6:
                         msg.reply(Utils_1.embeddedError("Please select a user to check his wallet."));
                         _c.label = 7;
-                    case 7: return [3 /*break*/, 55];
+                    case 7: return [3 /*break*/, 56];
                     case 8:
                         if (!(messages.length === 4)) return [3 /*break*/, 14];
                         server = messages[2];
@@ -155,6 +158,11 @@ var Responses = /** @class */ (function () {
                         }
                         if (!amount.includes('k') && !amount.includes('m') && !amount.includes('b')) {
                             msg.reply(Utils_1.embeddedError("Invalid currency to use."));
+                            return [2 /*return*/];
+                        }
+                        processEnvMaxCashin = process.env.DISCORD_CASHIER_MAX_CASHIN;
+                        if (Utils_1.getAmount(processEnvMaxCashin) < Utils_1.getAmount(amount)) {
+                            msg.reply(Utils_1.embeddedError("Cannot cash in more than allowed."));
                             return [2 /*return*/];
                         }
                         if (!depositRole) {
@@ -191,7 +199,7 @@ var Responses = /** @class */ (function () {
                         error_1 = _c.sent();
                         console.log(error_1);
                         return [3 /*break*/, 14];
-                    case 14: return [3 /*break*/, 55];
+                    case 14: return [3 /*break*/, 56];
                     case 15:
                         if (!(messages.length === 4)) return [3 /*break*/, 21];
                         server = messages[2];
@@ -207,6 +215,11 @@ var Responses = /** @class */ (function () {
                         }
                         if (!amount.includes('k') && !amount.includes('m') && !amount.includes('b')) {
                             msg.reply(Utils_1.embeddedError("Invalid currency to use."));
+                            return [2 /*return*/];
+                        }
+                        processEnvMaxCashout = process.env.DISCORD_CASHIER_MAX_CASHOUT;
+                        if (Utils_1.getAmount(processEnvMaxCashout) < Utils_1.getAmount(amount)) {
+                            msg.reply(Utils_1.embeddedError("Cannot cash out more than allowed."));
                             return [2 /*return*/];
                         }
                         if (!depositRole) {
@@ -247,7 +260,7 @@ var Responses = /** @class */ (function () {
                         error_2 = _c.sent();
                         console.log(error_2);
                         return [3 /*break*/, 21];
-                    case 21: return [3 /*break*/, 55];
+                    case 21: return [3 /*break*/, 56];
                     case 22:
                         if (!(messages.length == 2)) return [3 /*break*/, 24];
                         server = messages[2];
@@ -278,7 +291,7 @@ var Responses = /** @class */ (function () {
                         }
                         msg.reply(Utils_1.embeddedInstance("__Top 10 players statistics (week " + now.week() + ")__:", reply, '00ffef'));
                         _c.label = 24;
-                    case 24: return [3 /*break*/, 55];
+                    case 24: return [3 /*break*/, 56];
                     case 25:
                         if (!(messages.length >= 2)) return [3 /*break*/, 27];
                         server = messages[2];
@@ -309,7 +322,7 @@ var Responses = /** @class */ (function () {
                         }
                         msg.reply(Utils_1.embeddedInstance("__Top 10 players statistics__:", reply, '00ffef'));
                         _c.label = 27;
-                    case 27: return [3 /*break*/, 55];
+                    case 27: return [3 /*break*/, 56];
                     case 28:
                         if (!(messages.length === 1)) return [3 /*break*/, 30];
                         return [4 /*yield*/, this.userInstance.getUserPairs(id)];
@@ -320,7 +333,7 @@ var Responses = /** @class */ (function () {
                         reply += "__Client seed__: **" + pair.UserSeed + "**\n";
                         msg.reply(Utils_1.embeddedInstance("Current pair:", reply, '00ffef'));
                         _c.label = 30;
-                    case 30: return [3 /*break*/, 55];
+                    case 30: return [3 /*break*/, 56];
                     case 31:
                         if (!(messages.length === 1)) return [3 /*break*/, 34];
                         return [4 /*yield*/, this.userInstance.getUserPairs(id)];
@@ -335,7 +348,7 @@ var Responses = /** @class */ (function () {
                         reply += "__Client seed__: **" + newPair.UserSeed + "**\n";
                         msg.reply(Utils_1.embeddedInstance("New generated pair:", reply, '00ffef'));
                         _c.label = 34;
-                    case 34: return [3 /*break*/, 55];
+                    case 34: return [3 /*break*/, 56];
                     case 35:
                         if (messages.length === 3) {
                             reply = "__Server seed__: **" + messages[1] + "**\n";
@@ -344,9 +357,18 @@ var Responses = /** @class */ (function () {
                             reply += "__Result__: **" + Utils_1.roll(messages[1], messages[2]) + "**";
                             msg.reply(Utils_1.embeddedInstance("Provably Fair - Result verification:", reply, '00ffef'));
                         }
-                        return [3 /*break*/, 55];
+                        return [3 /*break*/, 56];
                     case 36:
-                        if (!(messages.length === 3)) return [3 /*break*/, 48];
+                        if (messages.length === 1) {
+                            processEnvMaxCashin = process.env.DISCORD_CASHIER_MAX_CASHIN;
+                            processEnvMaxCashout = process.env.DISCORD_CASHIER_MAX_CASHOUT;
+                            reply = "__Max cash in__: **" + processEnvMaxCashin + "**\n";
+                            reply += "__Max cash out__: **" + processEnvMaxCashout + "**";
+                            msg.reply(Utils_1.embeddedInstance("Cashier allowance", reply, '00ffef'));
+                        }
+                        return [3 /*break*/, 56];
+                    case 37:
+                        if (!(messages.length === 3)) return [3 /*break*/, 49];
                         server = messages[2];
                         amount = messages[1];
                         if (server !== '07' && server !== 'rs3') {
@@ -361,11 +383,11 @@ var Responses = /** @class */ (function () {
                             msg.reply(Utils_1.embeddedError("Invalid currency to use."));
                             return [2 /*return*/];
                         }
-                        _c.label = 37;
-                    case 37:
-                        _c.trys.push([37, 47, , 48]);
-                        return [4 /*yield*/, this.userInstance.getUser(id)];
+                        _c.label = 38;
                     case 38:
+                        _c.trys.push([38, 48, , 49]);
+                        return [4 /*yield*/, this.userInstance.getUser(id)];
+                    case 39:
                         targetUser = _c.sent();
                         osrs = server === '07';
                         targetBeforeBetBalance = osrs ? targetUser.BalanceOsrs : targetUser.BalanceRs;
@@ -376,7 +398,7 @@ var Responses = /** @class */ (function () {
                         }
                         beforeBetBalance = targetBeforeBetBalance - amountToDeduce;
                         return [4 /*yield*/, this.userInstance.updateUser(id, osrs, beforeBetBalance)];
-                    case 39:
+                    case 40:
                         updateBeforeBet = _c.sent();
                         rewardMultiplier = 1;
                         rewardMinimum = 54;
@@ -404,7 +426,7 @@ var Responses = /** @class */ (function () {
                         }
                         amountToAdd = +amountToDeduce * rewardMultiplier;
                         return [4 /*yield*/, this.userInstance.getUserPairs(id)];
-                    case 40:
+                    case 41:
                         pairs = _c.sent();
                         pair = pairs[0];
                         winBool = false;
@@ -415,20 +437,20 @@ var Responses = /** @class */ (function () {
                             winBool = pair.Result < rewardMinimum;
                         }
                         return [4 /*yield*/, this.gamesInstance.addGame(pair.Id, "" + +amountToDeduce, winBool, Utils_1.getGameType(messages[0]), Utils_1.getServer(osrs))];
-                    case 41:
-                        _c.sent();
-                        if (!winBool) return [3 /*break*/, 44];
-                        return [4 /*yield*/, this.userInstance.getUser(id)];
                     case 42:
+                        _c.sent();
+                        if (!winBool) return [3 /*break*/, 45];
+                        return [4 /*yield*/, this.userInstance.getUser(id)];
+                    case 43:
                         user = _c.sent();
                         targetAfterBetBalance = osrs ? user.BalanceOsrs : user.BalanceRs;
                         newBalance = targetAfterBetBalance + amountToAdd;
                         return [4 /*yield*/, this.userInstance.updateUser(id, osrs, newBalance)];
-                    case 43:
+                    case 44:
                         updateBalance = _c.sent();
-                        _c.label = 44;
-                    case 44: return [4 /*yield*/, this.gamesInstance.voidPair(pair.Id)];
-                    case 45:
+                        _c.label = 45;
+                    case 45: return [4 /*yield*/, this.gamesInstance.voidPair(pair.Id)];
+                    case 46:
                         voidPair = _c.sent();
                         reply = "__Server seed revealed__: **" + pair.ServerSeed + "**\n";
                         reply += "__Server hash__: **" + pair.ServerHash + "**\n";
@@ -436,17 +458,17 @@ var Responses = /** @class */ (function () {
                         reply += "__Result__: **" + pair.Result + "**\n";
                         reply += "You have rolled a " + pair.Result + ", you have " + (winBool ? 'won ' + Utils_1.minifyBalance(+amountToAdd) : 'lost ' + Utils_1.minifyBalance(+amountToDeduce)) + "!\n";
                         reply += "To verify the result: !verify **serverSeed** **clientSeed**";
-                        return [4 /*yield*/, msg.reply(Utils_1.embeddedInstance('Game results', reply, '00ff00', 'https://cdn.discordapp.com/attachments/531827915764269056/596057860484628483/671px-Two_red_dice_01.png'))];
-                    case 46:
-                        sentMessage = _c.sent();
-                        return [3 /*break*/, 48];
+                        return [4 /*yield*/, msg.reply(Utils_1.embeddedInstance('Game results', reply, '00ff00'))];
                     case 47:
+                        sentMessage = _c.sent();
+                        return [3 /*break*/, 49];
+                    case 48:
                         error_3 = _c.sent();
                         console.log(error_3);
-                        return [3 /*break*/, 48];
-                    case 48: return [3 /*break*/, 55];
-                    case 49:
-                        if (!(messages.length === 3)) return [3 /*break*/, 53];
+                        return [3 /*break*/, 49];
+                    case 49: return [3 /*break*/, 56];
+                    case 50:
+                        if (!(messages.length === 3)) return [3 /*break*/, 54];
                         server = messages[2];
                         inOut = messages[2];
                         depositRole = msg.member.roles.find(function (role) { return role.id === process.env.DISCORD_CASHIER_GROUP_ID; });
@@ -462,13 +484,13 @@ var Responses = /** @class */ (function () {
                             msg.reply(Utils_1.embeddedError("You do not have access to view transactions."));
                             return [2 /*return*/];
                         }
-                        _c.label = 50;
-                    case 50:
-                        _c.trys.push([50, 52, , 53]);
+                        _c.label = 51;
+                    case 51:
+                        _c.trys.push([51, 53, , 54]);
                         osrs = server === '07';
                         cashin = inOut === 'in';
                         return [4 /*yield*/, this.txInstance.getTransactions(Utils_1.getServer(osrs), cashin)];
-                    case 51:
+                    case 52:
                         txs = _c.sent();
                         reply_1 = '';
                         txs.forEach(function (tx) {
@@ -478,14 +500,14 @@ var Responses = /** @class */ (function () {
                             reply_1 += (cashier ? cashier : tx.CashierUuid) + " " + verb + " " + Utils_1.minifyBalance(tx.Amount) + " " + tx.Server + " for " + (member ? member : tx.UserUuid) + "\n";
                         });
                         msg.author.send(Utils_1.embeddedInstance("Last 50 transactions:", reply_1));
-                        return [3 /*break*/, 53];
-                    case 52:
+                        return [3 /*break*/, 54];
+                    case 53:
                         error_4 = _c.sent();
                         console.log(error_4);
-                        return [3 /*break*/, 53];
-                    case 53: return [3 /*break*/, 55];
-                    case 54: return [3 /*break*/, 55];
-                    case 55: return [2 /*return*/];
+                        return [3 /*break*/, 54];
+                    case 54: return [3 /*break*/, 56];
+                    case 55: return [3 /*break*/, 56];
+                    case 56: return [2 /*return*/];
                 }
             });
         });

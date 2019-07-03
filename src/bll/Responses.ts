@@ -19,7 +19,8 @@ export class Responses {
         '!44x2', '@44x2', '!54x2', '@54x2',
         '!92x10', '@92x10', '!75x3', '@75x3',
         '!weekly', '@weekly',
-        '@weeklystatistics', '!weeklystatistics'
+        '@weeklystatistics', '!weeklystatistics',
+        '!allowed', '@allowed'
     ];
 
     constructor(server: Discord.Guild, userInstance: IUser, gamesInstance: IGames, txInstance: ITransactions) {
@@ -93,6 +94,12 @@ export class Responses {
                         msg.reply(embeddedError(`Invalid currency to use.`));
                         return;
                     }
+                    const processEnvMaxCashin: any = process.env.DISCORD_CASHIER_MAX_CASHIN;
+
+                    if (getAmount(processEnvMaxCashin) < getAmount(amount)) {
+                        msg.reply(embeddedError(`Cannot cash in more than allowed.`));
+                        return;
+                    }
 
                     if (!depositRole) {
                         msg.reply(embeddedError(`You do not have access to deposit funds.`));
@@ -146,6 +153,13 @@ export class Responses {
 
                     if (!amount.includes('k') && !amount.includes('m') && !amount.includes('b')) {
                         msg.reply(embeddedError(`Invalid currency to use.`));
+                        return;
+                    }
+
+                    const processEnvMaxCashout: any = process.env.DISCORD_CASHIER_MAX_CASHOUT;
+
+                    if (getAmount(processEnvMaxCashout) < getAmount(amount)) {
+                        msg.reply(embeddedError(`Cannot cash out more than allowed.`));
                         return;
                     }
 
@@ -266,6 +280,17 @@ export class Responses {
                     msg.reply(embeddedInstance(`Provably Fair - Result verification:`, reply, '00ffef'));
                 }
                 break;
+
+            case '!allowed':
+            case '@allowed':
+                if (messages.length === 1) {
+                    const processEnvMaxCashin: any = process.env.DISCORD_CASHIER_MAX_CASHIN;
+                    const processEnvMaxCashout: any = process.env.DISCORD_CASHIER_MAX_CASHOUT;
+                    let reply = `__Max cash in__: **${processEnvMaxCashin}**\n`;
+                    reply += `__Max cash out__: **${processEnvMaxCashout}**`;
+                    msg.reply(embeddedInstance(`Cashier allowance`, reply, '00ffef'));
+                }
+                break;
             case '!44x2':
             case '@44x2':
             case '!54x2':
@@ -364,7 +389,7 @@ export class Responses {
                         //     sentMessage.edit(embeddedInstance('Game results', reply));
                         // }, 3250);
 
-                        let sentMessage = await msg.reply(embeddedInstance('Game results', reply, '00ff00', 'https://cdn.discordapp.com/attachments/531827915764269056/596057860484628483/671px-Two_red_dice_01.png'));
+                        let sentMessage = await msg.reply(embeddedInstance('Game results', reply, '00ff00'));
 
                     } catch (error) {
                         console.log(error);
