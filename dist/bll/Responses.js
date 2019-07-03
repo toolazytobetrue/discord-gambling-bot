@@ -263,7 +263,7 @@ var Responses = /** @class */ (function () {
                     case 21: return [3 /*break*/, 56];
                     case 22:
                         if (!(messages.length == 2)) return [3 /*break*/, 24];
-                        server = messages[2];
+                        server = messages[1];
                         if (server !== '07' && server !== 'rs3') {
                             msg.reply(Utils_1.embeddedError("Invalid server to check statistics on."));
                             return [2 /*return*/];
@@ -294,7 +294,7 @@ var Responses = /** @class */ (function () {
                     case 24: return [3 /*break*/, 56];
                     case 25:
                         if (!(messages.length >= 2)) return [3 /*break*/, 27];
-                        server = messages[2];
+                        server = messages[1];
                         if (server !== '07' && server !== 'rs3') {
                             msg.reply(Utils_1.embeddedError("Invalid server to check statistics on."));
                             return [2 /*return*/];
@@ -469,7 +469,7 @@ var Responses = /** @class */ (function () {
                     case 49: return [3 /*break*/, 56];
                     case 50:
                         if (!(messages.length === 3)) return [3 /*break*/, 54];
-                        server = messages[2];
+                        server = messages[1];
                         inOut = messages[2];
                         depositRole = msg.member.roles.find(function (role) { return role.id === process.env.DISCORD_CASHIER_GROUP_ID; });
                         if (server !== '07' && server !== 'rs3') {

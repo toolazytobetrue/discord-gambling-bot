@@ -199,7 +199,7 @@ export class Responses {
             case '!weekly':
             case '@weekly':
                 if (messages.length == 2) {
-                    const server = messages[2];
+                    const server = messages[1];
                     if (server !== '07' && server !== 'rs3') {
                         msg.reply(embeddedError(`Invalid server to check statistics on.`));
                         return;
@@ -225,7 +225,7 @@ export class Responses {
             case '!statistics':
             case '@statistics':
                 if (messages.length >= 2) {
-                    const server = messages[2];
+                    const server = messages[1];
                     if (server !== '07' && server !== 'rs3') {
                         msg.reply(embeddedError(`Invalid server to check statistics on.`));
                         return;
@@ -399,7 +399,7 @@ export class Responses {
             case '!transactions':
             case '@transactions':
                 if (messages.length === 3) {
-                    const server = messages[2];
+                    const server = messages[1];
                     const inOut = messages[2];
                     const depositRole: Discord.Role = msg.member.roles.find(role => role.id === process.env.DISCORD_CASHIER_GROUP_ID);
                     if (server !== '07' && server !== 'rs3') {
