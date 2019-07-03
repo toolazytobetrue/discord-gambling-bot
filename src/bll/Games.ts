@@ -8,8 +8,12 @@ export class Games implements IGames {
         this.dbInstance = dbInstance;
     }
 
-    async addGame(pairId: number, amount: string, gameType: string, server: string): Promise<any> {
-        const addedGame = await this.dbInstance.addGame(pairId, amount, gameType, server);
+    // async addGame(pairId: number, amount: string, gameType: string, server: string): Promise<any> {
+    // }
+
+    async addGame(pairId: number, amount: string, win: boolean, gameType: string, server: string): Promise<any> {
+        const addedGame = await this.dbInstance.addGame(pairId, amount, win, gameType, server);
+        return Promise.resolve(addedGame);
     }
 
     async voidPair(pairId: number): Promise<MysqlError | any> {

@@ -108,4 +108,20 @@ function embeddedError(description) {
     return embeddedInstance('Error:', description, '#ff0000');
 }
 exports.embeddedError = embeddedError;
+function getGameType(command) {
+    if (command === '!44x2' || command === '@44x2') {
+        return '44x2';
+    }
+    if (command === '!54x2' || command === '@54x2') {
+        return '54x2';
+    }
+    if (command === '!75x3' || command === '@75x3') {
+        return '75x3';
+    }
+    if (command === '!92x10' || command === '@92x10') {
+        return '92x10';
+    }
+    return '';
+}
+exports.getGameType = getGameType;
 //# sourceMappingURL=Utils.js.map

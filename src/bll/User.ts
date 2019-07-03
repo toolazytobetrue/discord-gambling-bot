@@ -59,6 +59,11 @@ export class User implements IUser {
         return Promise.resolve(newPairs);
     }
 
+    async getUsersStatistics(server: string): Promise<mysql.MysqlError | any> {
+        const results = await this.dbInstance.getUsersStatistics(server);
+        return Promise.resolve(results);
+    };
+
     async getUserStatistics(uuid: string, server: string): Promise<mysql.MysqlError | any> {
         const results = await this.dbInstance.getUserStatistics(uuid, server);
         let total = 0;

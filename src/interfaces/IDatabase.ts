@@ -9,7 +9,8 @@ export interface IDatabase {
     getPairs(uuid: string): Promise<mysql.MysqlError | any>;
     updateUser(uuid: string, osrs: boolean, newBalance: number): Promise<mysql.MysqlError | any>;
     voidPair(pairId: number): Promise<mysql.MysqlError | any>;
-    addGame(pairId: number, amount: string, gameType: string, server: string): Promise<any>;
+    addGame(pairId: number, amount: string, win: boolean, gameType: string, server: string): Promise<any>;
+    getUsersStatistics(server: string): Promise<any>;
     getUserStatistics(uuid: string, server: string): Promise<any>;
     getUserWeeklyStatistics(uuid: string, server: string, weekNumber: number): Promise<any>;
     getUsersWeeklyStatistics(server: string, weekNumber: number): Promise<any>;

@@ -113,11 +113,12 @@ export class Database implements IDatabase {
         });
     }
 
-    addGame(pairId: number, amount: string, gameType: string, server: string): Promise<any> {
+    addGame(pairId: number, amount: string, win: boolean, gameType: string, server: string): Promise<any> {
         return new Promise((resolve, reject) => {
             this.connection.query('INSERT INTO Games SET ?', {
                 PairId: pairId,
                 Amount: amount,
+                Win: win,
                 GameType: gameType,
                 Server: server
             }, function (error, results, fields) {
@@ -153,7 +154,18 @@ export class Database implements IDatabase {
 
     getUsersWeeklyStatistics(server: string, weekNumber: number): Promise<any> {
         return new Promise((resolve, reject) => {
-            this.connection.query('SELECT u.Id, SUM(g.Amount) as Sum, WEEK(g.DateAdded) as Week FROM Games g JOIN Pairs p ON p.Id = g.PairId JOIN Users u ON u.Id = p.UserId AND g.server = ? AND WEEK(g.DateAdded) = ? ORDER BY Sum DESC LIMIT 10', [server, weekNumber], function (error, results, fields) {
+            this.connection.query('SELECT u.Id, U.Uuid, SUM(g.Amount) as Sum, WEEK(g.DateAdded) as Week FROM Games g JOIN Pairs p ON p.Id = g.PairId JOIN Users u ON u.Id = p.UserId AND g.server = ? AND WEEK(g.DateAdded) = ? ORDER BY Sum DESC LIMIT 10', [server, weekNumber], function (error, results, fields) {
+                if (error) {
+                    return reject(error);
+                }
+                return resolve(results);
+            });
+        });
+    }
+
+    getUsersStatistics(server: string): Promise<any> {
+        return new Promise((resolve, reject) => {
+            this.connection.query('SELECT u.Id, U.Uuid, SUM(g.Amount) as Sum, WEEK(g.DateAdded) as Week FROM Games g JOIN Pairs p ON p.Id = g.PairId JOIN Users u ON u.Id = p.UserId AND g.server = ? ORDER BY Sum DESC LIMIT 10', [server], function (error, results, fields) {
                 if (error) {
                     return reject(error);
                 }

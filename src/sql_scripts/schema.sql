@@ -26,6 +26,7 @@ CREATE TABLE Games (
     Id int NOT NULL AUTO_INCREMENT,
     PairId int NOT NULL,
     Amount float NOT NULL,
+    Win BOOLEAN DEFAULT FALSE,
     GameType int NOT NULL,
     Server varchar(255) NOT NULL,
     DateAdded datetime default CURRENT_TIMESTAMP,

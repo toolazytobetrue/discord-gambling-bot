@@ -135,6 +135,20 @@ var User = /** @class */ (function () {
             });
         });
     };
+    User.prototype.getUsersStatistics = function (server) {
+        return __awaiter(this, void 0, void 0, function () {
+            var results;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.dbInstance.getUsersStatistics(server)];
+                    case 1:
+                        results = _a.sent();
+                        return [2 /*return*/, Promise.resolve(results)];
+                }
+            });
+        });
+    };
+    ;
     User.prototype.getUserStatistics = function (uuid, server) {
         return __awaiter(this, void 0, void 0, function () {
             var results, total;

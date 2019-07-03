@@ -39,15 +39,17 @@ var Games = /** @class */ (function () {
     function Games(dbInstance) {
         this.dbInstance = dbInstance;
     }
-    Games.prototype.addGame = function (pairId, amount, gameType, server) {
+    // async addGame(pairId: number, amount: string, gameType: string, server: string): Promise<any> {
+    // }
+    Games.prototype.addGame = function (pairId, amount, win, gameType, server) {
         return __awaiter(this, void 0, void 0, function () {
             var addedGame;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.dbInstance.addGame(pairId, amount, gameType, server)];
+                    case 0: return [4 /*yield*/, this.dbInstance.addGame(pairId, amount, win, gameType, server)];
                     case 1:
                         addedGame = _a.sent();
-                        return [2 /*return*/];
+                        return [2 /*return*/, Promise.resolve(addedGame)];
                 }
             });
         });

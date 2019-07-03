@@ -2,7 +2,7 @@ import * as Discord from "discord.js";
 import { IDatabase } from "../interfaces/IDatabase";
 import { User } from "../models/User.model";
 import { IUser } from "../interfaces/IUSer";
-import { minifyBalance, getAmount, getMultiplier, getServer, generateHash, roll, embeddedInstance, embeddedError, embeddedRollimage } from "../utils/Utils";
+import { minifyBalance, getAmount, getMultiplier, getServer, generateHash, roll, embeddedInstance, embeddedError, embeddedRollimage, getGameType } from "../utils/Utils";
 import { IGames } from "../interfaces/IGames";
 import moment from 'moment';
 import { ITransactions } from "../interfaces/ITransactions";
@@ -13,10 +13,14 @@ export class Responses {
     txInstance: ITransactions;
     commands = ['!help', '@help', '!commands', '@commands', '!balance', '@balance',
         '!wallet', '@wallet', '!deposit', '@deposit', '!cashin', '@cashin', '!cashout', '@cashout',
-        '!withdraw', '@withdraw', '!54x2', '@54x2', '!pair', '@pair', '!verify', '@verify', '!random', '@random',
-        '!statistics', '@statistics', '@weeklystatistics', '!weeklystatistics',
-        '!topweekly', '@topweekly', '!txs', '@txs', '!transactions', '@transactions',
-        '!92x10', '@92x10', '!75x3', '@75x3'];
+        '!withdraw', '@withdraw', '!pair', '@pair', '!verify', '@verify', '!random', '@random',
+        '!statistics', '@statistics',
+        '!txs', '@txs', '!transactions', '@transactions',
+        '!44x2', '@44x2', '!54x2', '@54x2',
+        '!92x10', '@92x10', '!75x3', '@75x3',
+        '!weekly', '@weekly',
+        '@weeklystatistics', '!weeklystatistics'
+    ];
 
     constructor(server: Discord.Guild, userInstance: IUser, gamesInstance: IGames, txInstance: ITransactions) {
         this.server = server;
@@ -68,21 +72,24 @@ export class Responses {
             case '!cashin':
             case '@cashin':
                 /**
-                 * [@!deposit] [07/rs3] [amount] [target]
+                 * [@!deposit] [amount] [07/rs3] [target]
                  */
                 if (messages.length === 4) {
+                    const server = messages[2];
+                    const amount = messages[1];
+
                     const depositRole: Discord.Role = msg.member.roles.find(role => role.id === process.env.DISCORD_CASHIER_GROUP_ID);
-                    if (messages[1] !== '07' && messages[1] !== 'rs3') {
+                    if (server !== '07' && server !== 'rs3') {
                         msg.reply(embeddedError(`Invalid server to deposit on.`));
                         return;
                     }
 
-                    if (getAmount(messages[2]) === 0) {
+                    if (getAmount(amount) === 0) {
                         msg.reply(embeddedError(`Invalid amount to deposit.`));
                         return;
                     }
 
-                    if (!messages[2].includes('k') && !messages[2].includes('m') && !messages[2].includes('b')) {
+                    if (!amount.includes('k') && !amount.includes('m') && !amount.includes('b')) {
                         msg.reply(embeddedError(`Invalid currency to use.`));
                         return;
                     }
@@ -104,14 +111,14 @@ export class Responses {
 
                     try {
                         const targetUser = await this.userInstance.getUser(mentionedMember.user.id);
-                        const osrs = messages[1] === '07';
+                        const osrs = server === '07';
                         const targetCurrentBalance = osrs ? targetUser.BalanceOsrs : targetUser.BalanceRs;
-                        const amountToAdd = getAmount(messages[2]) * getMultiplier(messages[2]);
+                        const amountToAdd = getAmount(amount) * getMultiplier(amount);
                         const newBalance = amountToAdd + targetCurrentBalance;
 
                         const updateBalance = await this.userInstance.updateUser(mentionedMember.user.id, osrs, newBalance);
                         const addTx = await this.txInstance.addTransaction(id, mentionedMember.user.id, `${amountToAdd}`, getServer(osrs), true);
-                        msg.reply(embeddedInstance(`CashIn`, `Successfully deposited ${messages[2]} to ${mentionedMember}'s ${getServer(osrs)} wallet.`));
+                        msg.reply(embeddedInstance(`CashIn`, `Successfully deposited ${amount} to ${mentionedMember}'s ${getServer(osrs)} wallet.`));
 
                     } catch (error) {
                         console.log(error);
@@ -123,18 +130,21 @@ export class Responses {
             case '!withdraw':
             case '@withdraw':
                 if (messages.length === 4) {
+                    const server = messages[2];
+                    const amount = messages[1];
+
                     const depositRole: Discord.Role = msg.member.roles.find(role => role.id === process.env.DISCORD_CASHIER_GROUP_ID);
-                    if (messages[1] !== '07' && messages[1] !== 'rs3') {
+                    if (server !== '07' && server !== 'rs3') {
                         msg.reply(embeddedError(`Invalid server to withdraw from.`));
                         return;
                     }
 
-                    if (getAmount(messages[2]) === 0) {
+                    if (getAmount(amount) === 0) {
                         msg.reply(embeddedError(`Invalid amount to withdraw.`));
                         return;
                     }
 
-                    if (!messages[2].includes('k') && !messages[2].includes('m') && !messages[2].includes('b')) {
+                    if (!amount.includes('k') && !amount.includes('m') && !amount.includes('b')) {
                         msg.reply(embeddedError(`Invalid currency to use.`));
                         return;
                     }
@@ -155,9 +165,9 @@ export class Responses {
                     }
                     try {
                         const targetUser = await this.userInstance.getUser(mentionedMember.user.id);
-                        const osrs = messages[1] === '07';
+                        const osrs = server === '07';
                         const targetCurrentBalance = osrs ? targetUser.BalanceOsrs : targetUser.BalanceRs;
-                        const amountToDeduce = getAmount(messages[2]) * getMultiplier(messages[2]);
+                        const amountToDeduce = getAmount(amount) * getMultiplier(amount);
                         const newBalance = targetCurrentBalance - amountToDeduce;
                         if (newBalance < 0) {
                             msg.reply(embeddedError(`User cannot withdraw more than available funds in their wallet.`));
@@ -165,69 +175,62 @@ export class Responses {
                         }
                         const updateBalance = await this.userInstance.updateUser(mentionedMember.user.id, osrs, newBalance);
                         const addTx = await this.txInstance.addTransaction(id, mentionedMember.user.id, `-${amountToDeduce}`, getServer(osrs), false);
-                        msg.reply(embeddedInstance(`CashOut`, `Successfully withdrew ${messages[2]} from ${mentionedMember}'s ${getServer(osrs)} wallet.`));
+                        msg.reply(embeddedInstance(`CashOut`, `Successfully withdrew ${amount} from ${mentionedMember}'s ${getServer(osrs)} wallet.`));
                     } catch (error) {
                         console.log(error);
                     }
                 }
                 break;
 
-            case '!topweekly':
-            case '@topweekly':
+            case '!weekly':
+            case '@weekly':
                 if (messages.length == 2) {
-                    if (messages[1] !== '07' && messages[1] !== 'rs3') {
+                    const server = messages[2];
+                    if (server !== '07' && server !== 'rs3') {
                         msg.reply(embeddedError(`Invalid server to check statistics on.`));
                         return;
                     }
-                    let server = messages[1] === '07' ? 'OSRS' : 'RS3';
-                    const results = await this.userInstance.getUsersWeeklyStatistics(server, now.week())
+                    let serverType = server === '07' ? 'OSRS' : 'RS3';
+                    const results = await this.userInstance.getUsersWeeklyStatistics(serverType, now.week() - 1);
                     let reply = '';
                     if (results.length === 1) {
                         if (results[0].Id === null) {
                             reply = 'No data to display'
                         } else {
-                            results.forEach((result: any) => {
-                                const user = this.server.members.find(member => member.id === result.Id);
-                                reply += `**${user.displayName}** - ${minifyBalance(result.Sum)}\n`;
-                            });
+                            for (let i = 0; i < results.length; i++) {
+                                const result = results[i];
+                                const user = this.server.members.find(member => member.id === result.Uuid);
+                                reply += `**#${i + 1} ${user ? user : result.Uuid}** - ${minifyBalance(result.Sum)}\n`;
+                            }
                         }
                     }
                     msg.reply(embeddedInstance(`__Top 10 players statistics (week ${now.week()})__:`, reply, '00ffef'));
                 }
-
-
-                break;
-
-            case '!weeklystatistics':
-            case '@weeklystatistics':
-                if (messages.length >= 2) {
-                    let userId = messages.length === 2 ? id : mentionedMember.user.id;
-                    if (messages[1] !== '07' && messages[1] !== 'rs3') {
-                        msg.reply(embeddedError(`Invalid server to check statistics on.`));
-                        return;
-                    }
-                    let user = messages.length === 2 ? msg.author.username : mentionedMember.displayName;
-                    let server = messages[1] === '07' ? 'OSRS' : 'RS3';
-                    let weeklyStatistics = await this.userInstance.getUserWeeklyStatistics(userId, server, now.week());
-                    const reply = `__Total profit__ (week ${now.week()}): **${minifyBalance(weeklyStatistics)}**\n`;
-                    msg.reply(embeddedInstance(`__Weekly statistics for__: **${user}**`, reply, '00ffef'));
-                }
-
                 break;
 
             case '!statistics':
             case '@statistics':
                 if (messages.length >= 2) {
-                    let userId = messages.length === 2 ? id : mentionedMember.user.id;
-                    if (messages[1] !== '07' && messages[1] !== 'rs3') {
+                    const server = messages[2];
+                    if (server !== '07' && server !== 'rs3') {
                         msg.reply(embeddedError(`Invalid server to check statistics on.`));
                         return;
                     }
-                    let user = messages.length === 2 ? msg.author.username : mentionedMember.displayName;
-                    let server = messages[1] === '07' ? 'OSRS' : 'RS3';
-                    let statistics = await this.userInstance.getUserStatistics(userId, server);
-                    const reply = `__Total profit__: **${minifyBalance(statistics)}**\n`;
-                    msg.reply(embeddedInstance(`__All time statistics for__: **${user}**`, reply, '00ffef'));
+                    let serverType = server === '07' ? 'OSRS' : 'RS3';
+                    const results = await this.userInstance.getUsersStatistics(serverType);
+                    let reply = '';
+                    if (results.length === 1) {
+                        if (results[0].Id === null) {
+                            reply = 'No data to display'
+                        } else {
+                            for (let i = 0; i < results.length; i++) {
+                                const result = results[i];
+                                const user = this.server.members.find(member => member.id === result.Uuid);
+                                reply += `**#${i + 1} ${user ? user : result.Uuid}** - ${minifyBalance(result.Sum)}\n`;
+                            }
+                        }
+                    }
+                    msg.reply(embeddedInstance(`__Top 10 players statistics__:`, reply, '00ffef'));
                 }
                 break;
 
@@ -263,6 +266,8 @@ export class Responses {
                     msg.reply(embeddedInstance(`Provably Fair - Result verification:`, reply, '00ffef'));
                 }
                 break;
+            case '!44x2':
+            case '@44x2':
             case '!54x2':
             case '@54x2':
             case '!75x3':
@@ -271,26 +276,29 @@ export class Responses {
             case '@92x10':
                 if (messages.length === 3) {
                     // const depositRole: Discord.Role = sender.roles.find(role => role.id === process.env.DISCORD_CASHIER_GROUP_ID);
-                    if (messages[1] !== '07' && messages[1] !== 'rs3') {
+                    const server = messages[2];
+                    const amount = messages[1];
+
+                    if (server !== '07' && server !== 'rs3') {
                         msg.reply(embeddedError(`Invalid server.`));
                         return;
                     }
 
-                    if (getAmount(messages[2]) === 0) {
+                    if (getAmount(amount) === 0) {
                         msg.reply(embeddedError(`Invalid amount.`));
                         return;
                     }
 
-                    if (!messages[2].includes('k') && !messages[2].includes('m') && !messages[2].includes('b')) {
+                    if (!amount.includes('k') && !amount.includes('m') && !amount.includes('b')) {
                         msg.reply(embeddedError(`Invalid currency to use.`));
                         return;
                     }
 
                     try {
                         const targetUser = await this.userInstance.getUser(id);
-                        const osrs = messages[1] === '07';
+                        const osrs = server === '07';
                         const targetBeforeBetBalance = osrs ? targetUser.BalanceOsrs : targetUser.BalanceRs;
-                        const amountToDeduce = getAmount(messages[2]) * getMultiplier(messages[2]);
+                        const amountToDeduce = getAmount(amount) * getMultiplier(amount);
                         if (targetBeforeBetBalance - amountToDeduce < 0) {
                             msg.reply(embeddedError(`Insufficient funds.`));
                             return;
@@ -302,6 +310,11 @@ export class Responses {
                         let rewardMultiplier = 1;
                         let rewardMinimum = 54;
                         switch (messages[0]) {
+                            case '!44x2':
+                            case '@44x2':
+                                rewardMultiplier = 2;
+                                rewardMinimum = 44;
+                                break;
                             case '!54x2':
                             case '@54x2':
                                 rewardMultiplier = 2;
@@ -322,9 +335,16 @@ export class Responses {
                         const amountToAdd = +amountToDeduce * rewardMultiplier;
                         const pairs = await this.userInstance.getUserPairs(id);
                         const pair = pairs[0];
+                        let winBool = false;
+                        if (rewardMinimum === 54 || rewardMinimum === 75 || rewardMinimum === 92) {
+                            winBool = pair.Result > rewardMinimum;
+                        } else {
+                            winBool = pair.Result < rewardMinimum;
+                        }
 
-                        if (pair.Result > rewardMinimum) {
-                            await this.gamesInstance.addGame(pair.Id, `${amountToAdd}`, '54x2', getServer(osrs));
+                        await this.gamesInstance.addGame(pair.Id, `${+amountToDeduce}`, winBool, getGameType(messages[0]), getServer(osrs));
+
+                        if (winBool) {
                             const user = await this.userInstance.getUser(id);
                             const targetAfterBetBalance = osrs ? user.BalanceOsrs : user.BalanceRs;
                             const newBalance = targetAfterBetBalance + amountToAdd;
@@ -332,19 +352,19 @@ export class Responses {
                         }
                         const voidPair = await this.gamesInstance.voidPair(pair.Id);
 
-                        let reply = `||__Server seed revealed__: **${pair.ServerSeed}**\n`;
+                        let reply = `__Server seed revealed__: **${pair.ServerSeed}**\n`;
                         reply += `__Server hash__: **${pair.ServerHash}**\n`;
                         reply += `__Client seed__: **${pair.UserSeed}**\n`;
                         reply += `__Result__: **${pair.Result}**\n`;
-                        reply += `You have rolled a ${pair.Result}, you have ${pair.Result > rewardMinimum ? 'won ' + minifyBalance(+amountToAdd) : 'lost ' + minifyBalance(-amountToDeduce)}!\n`;
-                        reply += `To verify the result: !verify **serverSeed** **clientSeed**||`;
+                        reply += `You have rolled a ${pair.Result}, you have ${winBool ? 'won ' + minifyBalance(+amountToAdd) : 'lost ' + minifyBalance(+amountToDeduce)}!\n`;
+                        reply += `To verify the result: !verify **serverSeed** **clientSeed**`;
 
-                        let sentMessage: any = await msg.reply(embeddedRollimage('https://i.imgur.com/F67CPB8.gif'))
-                        setTimeout(() => {
-                            sentMessage.edit(embeddedInstance('Game results', reply));
-                        }, 3250);
+                        // let sentMessage: any = await msg.reply(embeddedRollimage('https://i.imgur.com/F67CPB8.gif'))
+                        // setTimeout(() => {
+                        //     sentMessage.edit(embeddedInstance('Game results', reply));
+                        // }, 3250);
 
-                        // let sentMessage = await msg.reply(embeddedInstance('Game results', reply));
+                        let sentMessage = await msg.reply(embeddedInstance('Game results', reply, '00ff00', 'https://cdn.discordapp.com/attachments/531827915764269056/596057860484628483/671px-Two_red_dice_01.png'));
 
                     } catch (error) {
                         console.log(error);
@@ -354,13 +374,15 @@ export class Responses {
             case '!transactions':
             case '@transactions':
                 if (messages.length === 3) {
+                    const server = messages[2];
+                    const inOut = messages[2];
                     const depositRole: Discord.Role = msg.member.roles.find(role => role.id === process.env.DISCORD_CASHIER_GROUP_ID);
-                    if (messages[1] !== '07' && messages[1] !== 'rs3') {
+                    if (server !== '07' && server !== 'rs3') {
                         msg.reply(embeddedError(`Invalid server to view transactions.`));
                         return;
                     }
 
-                    if (messages[2] !== 'in' && messages[2] !== 'out') {
+                    if (inOut !== 'in' && inOut !== 'out') {
                         msg.reply(embeddedError(`Invalid cashing method.`));
                         return;
                     }
@@ -371,8 +393,8 @@ export class Responses {
                     }
 
                     try {
-                        const osrs = messages[1] === '07';
-                        const cashin = messages[2] === 'in';
+                        const osrs = server === '07';
+                        const cashin = inOut === 'in';
                         const txs = await this.txInstance.getTransactions(getServer(osrs), cashin);
 
                         let reply = '';

@@ -24,7 +24,6 @@ export function getAmount(message: string): number {
     if (message.includes('b')) {
         return message.split('b')[0] ? +message.split('b')[0] : 0;
     }
-
     return 0;
 }
 
@@ -98,4 +97,20 @@ export function embeddedRollimage(img: string) {
 
 export function embeddedError(description: string) {
     return embeddedInstance('Error:', description, '#ff0000');
+}
+
+export function getGameType(command: string): string {
+    if (command === '!44x2' || command === '@44x2') {
+        return '44x2';
+    }
+    if (command === '!54x2' || command === '@54x2') {
+        return '54x2';
+    }
+    if (command === '!75x3' || command === '@75x3') {
+        return '75x3';
+    }
+    if (command === '!92x10' || command === '@92x10') {
+        return '92x10';
+    }
+    return '';
 }

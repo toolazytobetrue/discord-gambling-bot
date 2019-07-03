@@ -44,10 +44,14 @@ var Responses = /** @class */ (function () {
     function Responses(server, userInstance, gamesInstance, txInstance) {
         this.commands = ['!help', '@help', '!commands', '@commands', '!balance', '@balance',
             '!wallet', '@wallet', '!deposit', '@deposit', '!cashin', '@cashin', '!cashout', '@cashout',
-            '!withdraw', '@withdraw', '!54x2', '@54x2', '!pair', '@pair', '!verify', '@verify', '!random', '@random',
-            '!statistics', '@statistics', '@weeklystatistics', '!weeklystatistics',
-            '!topweekly', '@topweekly', '!txs', '@txs', '!transactions', '@transactions',
-            '!92x10', '@92x10', '!75x3', '@75x3'];
+            '!withdraw', '@withdraw', '!pair', '@pair', '!verify', '@verify', '!random', '@random',
+            '!statistics', '@statistics',
+            '!txs', '@txs', '!transactions', '@transactions',
+            '!44x2', '@44x2', '!54x2', '@54x2',
+            '!92x10', '@92x10', '!75x3', '@75x3',
+            '!weekly', '@weekly',
+            '@weeklystatistics', '!weeklystatistics'
+        ];
         this.server = server;
         this.userInstance = userInstance;
         this.gamesInstance = gamesInstance;
@@ -55,7 +59,7 @@ var Responses = /** @class */ (function () {
     }
     Responses.prototype.reply = function (msg) {
         return __awaiter(this, void 0, void 0, function () {
-            var messages, command, mentionedMember, now, _a, id, username, tag, _b, commands, user, depositRole, user, depositRole, targetUser, osrs, targetCurrentBalance, amountToAdd, newBalance, updateBalance, addTx, error_1, depositRole, targetUser, osrs, targetCurrentBalance, amountToDeduce, newBalance, updateBalance, addTx, error_2, server, results, reply_1, userId, user, server, weeklyStatistics, reply, userId, user, server, statistics, reply, pairs, pair, reply, pairs, pair, result, newPair, reply, reply, targetUser, osrs, targetBeforeBetBalance, amountToDeduce, beforeBetBalance, updateBeforeBet, rewardMultiplier, rewardMinimum, amountToAdd, pairs, pair, user, targetAfterBetBalance, newBalance, updateBalance, voidPair, reply_2, sentMessage_1, error_3, depositRole, osrs, cashin, txs, reply_3, error_4;
+            var messages, command, mentionedMember, now, _a, id, username, tag, _b, commands, user, depositRole, user, server, amount, depositRole, targetUser, osrs, targetCurrentBalance, amountToAdd, newBalance, updateBalance, addTx, error_1, server, amount, depositRole, targetUser, osrs, targetCurrentBalance, amountToDeduce, newBalance, updateBalance, addTx, error_2, server, serverType, results, reply, _loop_1, this_1, i, server, serverType, results, reply, _loop_2, this_2, i, pairs, pair, reply, pairs, pair, result, newPair, reply, reply, server, amount, targetUser, osrs, targetBeforeBetBalance, amountToDeduce, beforeBetBalance, updateBeforeBet, rewardMultiplier, rewardMinimum, amountToAdd, pairs, pair, winBool, user, targetAfterBetBalance, newBalance, updateBalance, voidPair, reply, sentMessage, error_3, server, inOut, depositRole, osrs, cashin, txs, reply_1, error_4;
             var _this = this;
             return __generator(this, function (_c) {
                 switch (_c.label) {
@@ -86,32 +90,32 @@ var Responses = /** @class */ (function () {
                             case '@cashout': return [3 /*break*/, 15];
                             case '!withdraw': return [3 /*break*/, 15];
                             case '@withdraw': return [3 /*break*/, 15];
-                            case '!topweekly': return [3 /*break*/, 22];
-                            case '@topweekly': return [3 /*break*/, 22];
-                            case '!weeklystatistics': return [3 /*break*/, 25];
-                            case '@weeklystatistics': return [3 /*break*/, 25];
-                            case '!statistics': return [3 /*break*/, 28];
-                            case '@statistics': return [3 /*break*/, 28];
-                            case '!pair': return [3 /*break*/, 31];
-                            case '@pair': return [3 /*break*/, 31];
-                            case '!random': return [3 /*break*/, 34];
-                            case '@random': return [3 /*break*/, 34];
-                            case '!verify': return [3 /*break*/, 38];
-                            case '@verify': return [3 /*break*/, 38];
-                            case '!54x2': return [3 /*break*/, 39];
-                            case '@54x2': return [3 /*break*/, 39];
-                            case '!75x3': return [3 /*break*/, 39];
-                            case '@75x3': return [3 /*break*/, 39];
-                            case '!92x10': return [3 /*break*/, 39];
-                            case '@92x10': return [3 /*break*/, 39];
-                            case '!transactions': return [3 /*break*/, 52];
-                            case '@transactions': return [3 /*break*/, 52];
+                            case '!weekly': return [3 /*break*/, 22];
+                            case '@weekly': return [3 /*break*/, 22];
+                            case '!statistics': return [3 /*break*/, 25];
+                            case '@statistics': return [3 /*break*/, 25];
+                            case '!pair': return [3 /*break*/, 28];
+                            case '@pair': return [3 /*break*/, 28];
+                            case '!random': return [3 /*break*/, 31];
+                            case '@random': return [3 /*break*/, 31];
+                            case '!verify': return [3 /*break*/, 35];
+                            case '@verify': return [3 /*break*/, 35];
+                            case '!44x2': return [3 /*break*/, 36];
+                            case '@44x2': return [3 /*break*/, 36];
+                            case '!54x2': return [3 /*break*/, 36];
+                            case '@54x2': return [3 /*break*/, 36];
+                            case '!75x3': return [3 /*break*/, 36];
+                            case '@75x3': return [3 /*break*/, 36];
+                            case '!92x10': return [3 /*break*/, 36];
+                            case '@92x10': return [3 /*break*/, 36];
+                            case '!transactions': return [3 /*break*/, 49];
+                            case '@transactions': return [3 /*break*/, 49];
                         }
-                        return [3 /*break*/, 57];
+                        return [3 /*break*/, 54];
                     case 1:
                         commands = this.commands.join(', ');
                         msg.reply(Utils_1.embeddedInstance("Current available commands:", commands));
-                        return [3 /*break*/, 58];
+                        return [3 /*break*/, 55];
                     case 2:
                         if (!(messages.length === 1)) return [3 /*break*/, 4];
                         return [4 /*yield*/, this.userInstance.getUser(id)];
@@ -135,19 +139,21 @@ var Responses = /** @class */ (function () {
                     case 6:
                         msg.reply(Utils_1.embeddedError("Please select a user to check his wallet."));
                         _c.label = 7;
-                    case 7: return [3 /*break*/, 58];
+                    case 7: return [3 /*break*/, 55];
                     case 8:
                         if (!(messages.length === 4)) return [3 /*break*/, 14];
+                        server = messages[2];
+                        amount = messages[1];
                         depositRole = msg.member.roles.find(function (role) { return role.id === process.env.DISCORD_CASHIER_GROUP_ID; });
-                        if (messages[1] !== '07' && messages[1] !== 'rs3') {
+                        if (server !== '07' && server !== 'rs3') {
                             msg.reply(Utils_1.embeddedError("Invalid server to deposit on."));
                             return [2 /*return*/];
                         }
-                        if (Utils_1.getAmount(messages[2]) === 0) {
+                        if (Utils_1.getAmount(amount) === 0) {
                             msg.reply(Utils_1.embeddedError("Invalid amount to deposit."));
                             return [2 /*return*/];
                         }
-                        if (!messages[2].includes('k') && !messages[2].includes('m') && !messages[2].includes('b')) {
+                        if (!amount.includes('k') && !amount.includes('m') && !amount.includes('b')) {
                             msg.reply(Utils_1.embeddedError("Invalid currency to use."));
                             return [2 /*return*/];
                         }
@@ -169,9 +175,9 @@ var Responses = /** @class */ (function () {
                         return [4 /*yield*/, this.userInstance.getUser(mentionedMember.user.id)];
                     case 10:
                         targetUser = _c.sent();
-                        osrs = messages[1] === '07';
+                        osrs = server === '07';
                         targetCurrentBalance = osrs ? targetUser.BalanceOsrs : targetUser.BalanceRs;
-                        amountToAdd = Utils_1.getAmount(messages[2]) * Utils_1.getMultiplier(messages[2]);
+                        amountToAdd = Utils_1.getAmount(amount) * Utils_1.getMultiplier(amount);
                         newBalance = amountToAdd + targetCurrentBalance;
                         return [4 /*yield*/, this.userInstance.updateUser(mentionedMember.user.id, osrs, newBalance)];
                     case 11:
@@ -179,25 +185,27 @@ var Responses = /** @class */ (function () {
                         return [4 /*yield*/, this.txInstance.addTransaction(id, mentionedMember.user.id, "" + amountToAdd, Utils_1.getServer(osrs), true)];
                     case 12:
                         addTx = _c.sent();
-                        msg.reply(Utils_1.embeddedInstance("CashIn", "Successfully deposited " + messages[2] + " to " + mentionedMember + "'s " + Utils_1.getServer(osrs) + " wallet."));
+                        msg.reply(Utils_1.embeddedInstance("CashIn", "Successfully deposited " + amount + " to " + mentionedMember + "'s " + Utils_1.getServer(osrs) + " wallet."));
                         return [3 /*break*/, 14];
                     case 13:
                         error_1 = _c.sent();
                         console.log(error_1);
                         return [3 /*break*/, 14];
-                    case 14: return [3 /*break*/, 58];
+                    case 14: return [3 /*break*/, 55];
                     case 15:
                         if (!(messages.length === 4)) return [3 /*break*/, 21];
+                        server = messages[2];
+                        amount = messages[1];
                         depositRole = msg.member.roles.find(function (role) { return role.id === process.env.DISCORD_CASHIER_GROUP_ID; });
-                        if (messages[1] !== '07' && messages[1] !== 'rs3') {
+                        if (server !== '07' && server !== 'rs3') {
                             msg.reply(Utils_1.embeddedError("Invalid server to withdraw from."));
                             return [2 /*return*/];
                         }
-                        if (Utils_1.getAmount(messages[2]) === 0) {
+                        if (Utils_1.getAmount(amount) === 0) {
                             msg.reply(Utils_1.embeddedError("Invalid amount to withdraw."));
                             return [2 /*return*/];
                         }
-                        if (!messages[2].includes('k') && !messages[2].includes('m') && !messages[2].includes('b')) {
+                        if (!amount.includes('k') && !amount.includes('m') && !amount.includes('b')) {
                             msg.reply(Utils_1.embeddedError("Invalid currency to use."));
                             return [2 /*return*/];
                         }
@@ -219,9 +227,9 @@ var Responses = /** @class */ (function () {
                         return [4 /*yield*/, this.userInstance.getUser(mentionedMember.user.id)];
                     case 17:
                         targetUser = _c.sent();
-                        osrs = messages[1] === '07';
+                        osrs = server === '07';
                         targetCurrentBalance = osrs ? targetUser.BalanceOsrs : targetUser.BalanceRs;
-                        amountToDeduce = Utils_1.getAmount(messages[2]) * Utils_1.getMultiplier(messages[2]);
+                        amountToDeduce = Utils_1.getAmount(amount) * Utils_1.getMultiplier(amount);
                         newBalance = targetCurrentBalance - amountToDeduce;
                         if (newBalance < 0) {
                             msg.reply(Utils_1.embeddedError("User cannot withdraw more than available funds in their wallet."));
@@ -233,97 +241,102 @@ var Responses = /** @class */ (function () {
                         return [4 /*yield*/, this.txInstance.addTransaction(id, mentionedMember.user.id, "-" + amountToDeduce, Utils_1.getServer(osrs), false)];
                     case 19:
                         addTx = _c.sent();
-                        msg.reply(Utils_1.embeddedInstance("CashOut", "Successfully withdrew " + messages[2] + " from " + mentionedMember + "'s " + Utils_1.getServer(osrs) + " wallet."));
+                        msg.reply(Utils_1.embeddedInstance("CashOut", "Successfully withdrew " + amount + " from " + mentionedMember + "'s " + Utils_1.getServer(osrs) + " wallet."));
                         return [3 /*break*/, 21];
                     case 20:
                         error_2 = _c.sent();
                         console.log(error_2);
                         return [3 /*break*/, 21];
-                    case 21: return [3 /*break*/, 58];
+                    case 21: return [3 /*break*/, 55];
                     case 22:
                         if (!(messages.length == 2)) return [3 /*break*/, 24];
-                        if (messages[1] !== '07' && messages[1] !== 'rs3') {
+                        server = messages[2];
+                        if (server !== '07' && server !== 'rs3') {
                             msg.reply(Utils_1.embeddedError("Invalid server to check statistics on."));
                             return [2 /*return*/];
                         }
-                        server = messages[1] === '07' ? 'OSRS' : 'RS3';
-                        return [4 /*yield*/, this.userInstance.getUsersWeeklyStatistics(server, now.week())];
+                        serverType = server === '07' ? 'OSRS' : 'RS3';
+                        return [4 /*yield*/, this.userInstance.getUsersWeeklyStatistics(serverType, now.week() - 1)];
                     case 23:
                         results = _c.sent();
-                        reply_1 = '';
+                        reply = '';
                         if (results.length === 1) {
                             if (results[0].Id === null) {
-                                reply_1 = 'No data to display';
+                                reply = 'No data to display';
                             }
                             else {
-                                results.forEach(function (result) {
-                                    var user = _this.server.members.find(function (member) { return member.id === result.Id; });
-                                    reply_1 += "**" + user.displayName + "** - " + Utils_1.minifyBalance(result.Sum) + "\n";
-                                });
+                                _loop_1 = function (i) {
+                                    var result = results[i];
+                                    var user = this_1.server.members.find(function (member) { return member.id === result.Uuid; });
+                                    reply += "**#" + (i + 1) + " " + (user ? user : result.Uuid) + "** - " + Utils_1.minifyBalance(result.Sum) + "\n";
+                                };
+                                this_1 = this;
+                                for (i = 0; i < results.length; i++) {
+                                    _loop_1(i);
+                                }
                             }
                         }
-                        msg.reply(Utils_1.embeddedInstance("__Top 10 players statistics (week " + now.week() + ")__:", reply_1, '00ffef'));
+                        msg.reply(Utils_1.embeddedInstance("__Top 10 players statistics (week " + now.week() + ")__:", reply, '00ffef'));
                         _c.label = 24;
-                    case 24: return [3 /*break*/, 58];
+                    case 24: return [3 /*break*/, 55];
                     case 25:
                         if (!(messages.length >= 2)) return [3 /*break*/, 27];
-                        userId = messages.length === 2 ? id : mentionedMember.user.id;
-                        if (messages[1] !== '07' && messages[1] !== 'rs3') {
+                        server = messages[2];
+                        if (server !== '07' && server !== 'rs3') {
                             msg.reply(Utils_1.embeddedError("Invalid server to check statistics on."));
                             return [2 /*return*/];
                         }
-                        user = messages.length === 2 ? msg.author.username : mentionedMember.displayName;
-                        server = messages[1] === '07' ? 'OSRS' : 'RS3';
-                        return [4 /*yield*/, this.userInstance.getUserWeeklyStatistics(userId, server, now.week())];
+                        serverType = server === '07' ? 'OSRS' : 'RS3';
+                        return [4 /*yield*/, this.userInstance.getUsersStatistics(serverType)];
                     case 26:
-                        weeklyStatistics = _c.sent();
-                        reply = "__Total profit__ (week " + now.week() + "): **" + Utils_1.minifyBalance(weeklyStatistics) + "**\n";
-                        msg.reply(Utils_1.embeddedInstance("__Weekly statistics for__: **" + user + "**", reply, '00ffef'));
-                        _c.label = 27;
-                    case 27: return [3 /*break*/, 58];
-                    case 28:
-                        if (!(messages.length >= 2)) return [3 /*break*/, 30];
-                        userId = messages.length === 2 ? id : mentionedMember.user.id;
-                        if (messages[1] !== '07' && messages[1] !== 'rs3') {
-                            msg.reply(Utils_1.embeddedError("Invalid server to check statistics on."));
-                            return [2 /*return*/];
+                        results = _c.sent();
+                        reply = '';
+                        if (results.length === 1) {
+                            if (results[0].Id === null) {
+                                reply = 'No data to display';
+                            }
+                            else {
+                                _loop_2 = function (i) {
+                                    var result = results[i];
+                                    var user = this_2.server.members.find(function (member) { return member.id === result.Uuid; });
+                                    reply += "**#" + (i + 1) + " " + (user ? user : result.Uuid) + "** - " + Utils_1.minifyBalance(result.Sum) + "\n";
+                                };
+                                this_2 = this;
+                                for (i = 0; i < results.length; i++) {
+                                    _loop_2(i);
+                                }
+                            }
                         }
-                        user = messages.length === 2 ? msg.author.username : mentionedMember.displayName;
-                        server = messages[1] === '07' ? 'OSRS' : 'RS3';
-                        return [4 /*yield*/, this.userInstance.getUserStatistics(userId, server)];
-                    case 29:
-                        statistics = _c.sent();
-                        reply = "__Total profit__: **" + Utils_1.minifyBalance(statistics) + "**\n";
-                        msg.reply(Utils_1.embeddedInstance("__All time statistics for__: **" + user + "**", reply, '00ffef'));
-                        _c.label = 30;
-                    case 30: return [3 /*break*/, 58];
-                    case 31:
-                        if (!(messages.length === 1)) return [3 /*break*/, 33];
+                        msg.reply(Utils_1.embeddedInstance("__Top 10 players statistics__:", reply, '00ffef'));
+                        _c.label = 27;
+                    case 27: return [3 /*break*/, 55];
+                    case 28:
+                        if (!(messages.length === 1)) return [3 /*break*/, 30];
                         return [4 /*yield*/, this.userInstance.getUserPairs(id)];
-                    case 32:
+                    case 29:
                         pairs = _c.sent();
                         pair = pairs[0];
                         reply = "__Server hash__: **" + pair.ServerHash + "**\n";
                         reply += "__Client seed__: **" + pair.UserSeed + "**\n";
                         msg.reply(Utils_1.embeddedInstance("Current pair:", reply, '00ffef'));
-                        _c.label = 33;
-                    case 33: return [3 /*break*/, 58];
-                    case 34:
-                        if (!(messages.length === 1)) return [3 /*break*/, 37];
+                        _c.label = 30;
+                    case 30: return [3 /*break*/, 55];
+                    case 31:
+                        if (!(messages.length === 1)) return [3 /*break*/, 34];
                         return [4 /*yield*/, this.userInstance.getUserPairs(id)];
-                    case 35:
+                    case 32:
                         pairs = _c.sent();
                         pair = pairs[0];
                         return [4 /*yield*/, this.gamesInstance.voidPair(pair.Id)];
-                    case 36:
+                    case 33:
                         result = _c.sent();
                         newPair = pairs[1];
                         reply = "__Server hash__: **" + newPair.ServerHash + "**\n";
                         reply += "__Client seed__: **" + newPair.UserSeed + "**\n";
                         msg.reply(Utils_1.embeddedInstance("New generated pair:", reply, '00ffef'));
-                        _c.label = 37;
-                    case 37: return [3 /*break*/, 58];
-                    case 38:
+                        _c.label = 34;
+                    case 34: return [3 /*break*/, 55];
+                    case 35:
                         if (messages.length === 3) {
                             reply = "__Server seed__: **" + messages[1] + "**\n";
                             reply += "__Server hash__: **" + Utils_1.generateHash(messages[1], messages[2]) + "**\n";
@@ -331,42 +344,48 @@ var Responses = /** @class */ (function () {
                             reply += "__Result__: **" + Utils_1.roll(messages[1], messages[2]) + "**";
                             msg.reply(Utils_1.embeddedInstance("Provably Fair - Result verification:", reply, '00ffef'));
                         }
-                        return [3 /*break*/, 58];
-                    case 39:
-                        if (!(messages.length === 3)) return [3 /*break*/, 51];
-                        // const depositRole: Discord.Role = sender.roles.find(role => role.id === process.env.DISCORD_CASHIER_GROUP_ID);
-                        if (messages[1] !== '07' && messages[1] !== 'rs3') {
+                        return [3 /*break*/, 55];
+                    case 36:
+                        if (!(messages.length === 3)) return [3 /*break*/, 48];
+                        server = messages[2];
+                        amount = messages[1];
+                        if (server !== '07' && server !== 'rs3') {
                             msg.reply(Utils_1.embeddedError("Invalid server."));
                             return [2 /*return*/];
                         }
-                        if (Utils_1.getAmount(messages[2]) === 0) {
+                        if (Utils_1.getAmount(amount) === 0) {
                             msg.reply(Utils_1.embeddedError("Invalid amount."));
                             return [2 /*return*/];
                         }
-                        if (!messages[2].includes('k') && !messages[2].includes('m') && !messages[2].includes('b')) {
+                        if (!amount.includes('k') && !amount.includes('m') && !amount.includes('b')) {
                             msg.reply(Utils_1.embeddedError("Invalid currency to use."));
                             return [2 /*return*/];
                         }
-                        _c.label = 40;
-                    case 40:
-                        _c.trys.push([40, 50, , 51]);
+                        _c.label = 37;
+                    case 37:
+                        _c.trys.push([37, 47, , 48]);
                         return [4 /*yield*/, this.userInstance.getUser(id)];
-                    case 41:
+                    case 38:
                         targetUser = _c.sent();
-                        osrs = messages[1] === '07';
+                        osrs = server === '07';
                         targetBeforeBetBalance = osrs ? targetUser.BalanceOsrs : targetUser.BalanceRs;
-                        amountToDeduce = Utils_1.getAmount(messages[2]) * Utils_1.getMultiplier(messages[2]);
+                        amountToDeduce = Utils_1.getAmount(amount) * Utils_1.getMultiplier(amount);
                         if (targetBeforeBetBalance - amountToDeduce < 0) {
                             msg.reply(Utils_1.embeddedError("Insufficient funds."));
                             return [2 /*return*/];
                         }
                         beforeBetBalance = targetBeforeBetBalance - amountToDeduce;
                         return [4 /*yield*/, this.userInstance.updateUser(id, osrs, beforeBetBalance)];
-                    case 42:
+                    case 39:
                         updateBeforeBet = _c.sent();
                         rewardMultiplier = 1;
                         rewardMinimum = 54;
                         switch (messages[0]) {
+                            case '!44x2':
+                            case '@44x2':
+                                rewardMultiplier = 2;
+                                rewardMinimum = 44;
+                                break;
                             case '!54x2':
                             case '@54x2':
                                 rewardMultiplier = 2;
@@ -385,51 +404,57 @@ var Responses = /** @class */ (function () {
                         }
                         amountToAdd = +amountToDeduce * rewardMultiplier;
                         return [4 /*yield*/, this.userInstance.getUserPairs(id)];
-                    case 43:
+                    case 40:
                         pairs = _c.sent();
                         pair = pairs[0];
-                        if (!(pair.Result > rewardMinimum)) return [3 /*break*/, 47];
-                        return [4 /*yield*/, this.gamesInstance.addGame(pair.Id, "" + amountToAdd, '54x2', Utils_1.getServer(osrs))];
-                    case 44:
+                        winBool = false;
+                        if (rewardMinimum === 54 || rewardMinimum === 75 || rewardMinimum === 92) {
+                            winBool = pair.Result > rewardMinimum;
+                        }
+                        else {
+                            winBool = pair.Result < rewardMinimum;
+                        }
+                        return [4 /*yield*/, this.gamesInstance.addGame(pair.Id, "" + +amountToDeduce, winBool, Utils_1.getGameType(messages[0]), Utils_1.getServer(osrs))];
+                    case 41:
                         _c.sent();
+                        if (!winBool) return [3 /*break*/, 44];
                         return [4 /*yield*/, this.userInstance.getUser(id)];
-                    case 45:
+                    case 42:
                         user = _c.sent();
                         targetAfterBetBalance = osrs ? user.BalanceOsrs : user.BalanceRs;
                         newBalance = targetAfterBetBalance + amountToAdd;
                         return [4 /*yield*/, this.userInstance.updateUser(id, osrs, newBalance)];
-                    case 46:
+                    case 43:
                         updateBalance = _c.sent();
-                        _c.label = 47;
-                    case 47: return [4 /*yield*/, this.gamesInstance.voidPair(pair.Id)];
-                    case 48:
+                        _c.label = 44;
+                    case 44: return [4 /*yield*/, this.gamesInstance.voidPair(pair.Id)];
+                    case 45:
                         voidPair = _c.sent();
-                        reply_2 = "||__Server seed revealed__: **" + pair.ServerSeed + "**\n";
-                        reply_2 += "__Server hash__: **" + pair.ServerHash + "**\n";
-                        reply_2 += "__Client seed__: **" + pair.UserSeed + "**\n";
-                        reply_2 += "__Result__: **" + pair.Result + "**\n";
-                        reply_2 += "You have rolled a " + pair.Result + ", you have " + (pair.Result > rewardMinimum ? 'won ' + Utils_1.minifyBalance(+amountToAdd) : 'lost ' + Utils_1.minifyBalance(-amountToDeduce)) + "!\n";
-                        reply_2 += "To verify the result: !verify **serverSeed** **clientSeed**||";
-                        return [4 /*yield*/, msg.reply(Utils_1.embeddedRollimage('https://i.imgur.com/F67CPB8.gif'))];
-                    case 49:
-                        sentMessage_1 = _c.sent();
-                        setTimeout(function () {
-                            sentMessage_1.edit(Utils_1.embeddedInstance('Game results', reply_2));
-                        }, 3250);
-                        return [3 /*break*/, 51];
-                    case 50:
+                        reply = "__Server seed revealed__: **" + pair.ServerSeed + "**\n";
+                        reply += "__Server hash__: **" + pair.ServerHash + "**\n";
+                        reply += "__Client seed__: **" + pair.UserSeed + "**\n";
+                        reply += "__Result__: **" + pair.Result + "**\n";
+                        reply += "You have rolled a " + pair.Result + ", you have " + (winBool ? 'won ' + Utils_1.minifyBalance(+amountToAdd) : 'lost ' + Utils_1.minifyBalance(+amountToDeduce)) + "!\n";
+                        reply += "To verify the result: !verify **serverSeed** **clientSeed**";
+                        return [4 /*yield*/, msg.reply(Utils_1.embeddedInstance('Game results', reply, '00ff00', 'https://cdn.discordapp.com/attachments/531827915764269056/596057860484628483/671px-Two_red_dice_01.png'))];
+                    case 46:
+                        sentMessage = _c.sent();
+                        return [3 /*break*/, 48];
+                    case 47:
                         error_3 = _c.sent();
                         console.log(error_3);
-                        return [3 /*break*/, 51];
-                    case 51: return [3 /*break*/, 58];
-                    case 52:
-                        if (!(messages.length === 3)) return [3 /*break*/, 56];
+                        return [3 /*break*/, 48];
+                    case 48: return [3 /*break*/, 55];
+                    case 49:
+                        if (!(messages.length === 3)) return [3 /*break*/, 53];
+                        server = messages[2];
+                        inOut = messages[2];
                         depositRole = msg.member.roles.find(function (role) { return role.id === process.env.DISCORD_CASHIER_GROUP_ID; });
-                        if (messages[1] !== '07' && messages[1] !== 'rs3') {
+                        if (server !== '07' && server !== 'rs3') {
                             msg.reply(Utils_1.embeddedError("Invalid server to view transactions."));
                             return [2 /*return*/];
                         }
-                        if (messages[2] !== 'in' && messages[2] !== 'out') {
+                        if (inOut !== 'in' && inOut !== 'out') {
                             msg.reply(Utils_1.embeddedError("Invalid cashing method."));
                             return [2 /*return*/];
                         }
@@ -437,30 +462,30 @@ var Responses = /** @class */ (function () {
                             msg.reply(Utils_1.embeddedError("You do not have access to view transactions."));
                             return [2 /*return*/];
                         }
-                        _c.label = 53;
-                    case 53:
-                        _c.trys.push([53, 55, , 56]);
-                        osrs = messages[1] === '07';
-                        cashin = messages[2] === 'in';
+                        _c.label = 50;
+                    case 50:
+                        _c.trys.push([50, 52, , 53]);
+                        osrs = server === '07';
+                        cashin = inOut === 'in';
                         return [4 /*yield*/, this.txInstance.getTransactions(Utils_1.getServer(osrs), cashin)];
-                    case 54:
+                    case 51:
                         txs = _c.sent();
-                        reply_3 = '';
+                        reply_1 = '';
                         txs.forEach(function (tx) {
                             var cashier = _this.server.members.find(function (member) { return member.id === tx.CashierUuid; });
                             var member = _this.server.members.find(function (member) { return member.id === tx.UserUuid; });
                             var verb = tx.CashIn ? 'cashed in' : 'cashed out';
-                            reply_3 += (cashier ? cashier : tx.CashierUuid) + " " + verb + " " + Utils_1.minifyBalance(tx.Amount) + " " + tx.Server + " for " + (member ? member : tx.UserUuid) + "\n";
+                            reply_1 += (cashier ? cashier : tx.CashierUuid) + " " + verb + " " + Utils_1.minifyBalance(tx.Amount) + " " + tx.Server + " for " + (member ? member : tx.UserUuid) + "\n";
                         });
-                        msg.author.send(Utils_1.embeddedInstance("Last 50 transactions:", reply_3));
-                        return [3 /*break*/, 56];
-                    case 55:
+                        msg.author.send(Utils_1.embeddedInstance("Last 50 transactions:", reply_1));
+                        return [3 /*break*/, 53];
+                    case 52:
                         error_4 = _c.sent();
                         console.log(error_4);
-                        return [3 /*break*/, 56];
-                    case 56: return [3 /*break*/, 58];
-                    case 57: return [3 /*break*/, 58];
-                    case 58: return [2 /*return*/];
+                        return [3 /*break*/, 53];
+                    case 53: return [3 /*break*/, 55];
+                    case 54: return [3 /*break*/, 55];
+                    case 55: return [2 /*return*/];
                 }
             });
         });

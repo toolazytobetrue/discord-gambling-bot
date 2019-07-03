@@ -1,4 +1,4 @@
 export interface IGames {
-    addGame(pairId: number, amount: string, gameType: string, server: string): Promise<any>;
+    addGame(pairId: number, amount: string, win: boolean, gameType: string, server: string): Promise<any>;
     voidPair(pairId: number): Promise<any>;
 }

@@ -118,12 +118,13 @@ var Database = /** @class */ (function () {
             });
         });
     };
-    Database.prototype.addGame = function (pairId, amount, gameType, server) {
+    Database.prototype.addGame = function (pairId, amount, win, gameType, server) {
         var _this = this;
         return new Promise(function (resolve, reject) {
             _this.connection.query('INSERT INTO Games SET ?', {
                 PairId: pairId,
                 Amount: amount,
+                Win: win,
                 GameType: gameType,
                 Server: server
             }, function (error, results, fields) {
@@ -159,7 +160,18 @@ var Database = /** @class */ (function () {
     Database.prototype.getUsersWeeklyStatistics = function (server, weekNumber) {
         var _this = this;
         return new Promise(function (resolve, reject) {
-            _this.connection.query('SELECT u.Id, SUM(g.Amount) as Sum, WEEK(g.DateAdded) as Week FROM Games g JOIN Pairs p ON p.Id = g.PairId JOIN Users u ON u.Id = p.UserId AND g.server = ? AND WEEK(g.DateAdded) = ? ORDER BY Sum DESC LIMIT 10', [server, weekNumber], function (error, results, fields) {
+            _this.connection.query('SELECT u.Id, U.Uuid, SUM(g.Amount) as Sum, WEEK(g.DateAdded) as Week FROM Games g JOIN Pairs p ON p.Id = g.PairId JOIN Users u ON u.Id = p.UserId AND g.server = ? AND WEEK(g.DateAdded) = ? ORDER BY Sum DESC LIMIT 10', [server, weekNumber], function (error, results, fields) {
+                if (error) {
+                    return reject(error);
+                }
+                return resolve(results);
+            });
+        });
+    };
+    Database.prototype.getUsersStatistics = function (server) {
+        var _this = this;
+        return new Promise(function (resolve, reject) {
+            _this.connection.query('SELECT u.Id, U.Uuid, SUM(g.Amount) as Sum, WEEK(g.DateAdded) as Week FROM Games g JOIN Pairs p ON p.Id = g.PairId JOIN Users u ON u.Id = p.UserId AND g.server = ? ORDER BY Sum DESC LIMIT 10', [server], function (error, results, fields) {
                 if (error) {
                     return reject(error);
                 }
