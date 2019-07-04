@@ -7,81 +7,74 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var mysql = __importStar(require("mysql"));
-var Database = /** @class */ (function () {
-    function Database(options) {
+const mysql = __importStar(require("mysql"));
+class Database {
+    constructor(options) {
         this.connection = mysql.createConnection(options);
     }
-    Database.prototype.connect = function () {
-        var _this = this;
-        return new Promise(function (resolve, reject) {
-            _this.connection.connect(function (err) {
+    connect() {
+        return new Promise((resolve, reject) => {
+            this.connection.connect(err => {
                 if (err) {
                     return reject(err);
                 }
                 return resolve(null);
             });
         });
-    };
-    Database.prototype.getUsers = function () {
-        var _this = this;
-        return new Promise(function (resolve, reject) {
-            _this.connection.query('SELECT * FROM Users', function (error, results, fields) {
+    }
+    getUsers() {
+        return new Promise((resolve, reject) => {
+            this.connection.query('SELECT * FROM Users', function (error, results, fields) {
                 if (error) {
                     return reject(error);
                 }
                 return resolve(results);
             });
         });
-    };
-    Database.prototype.getUser = function (uuid) {
-        var _this = this;
-        return new Promise(function (resolve, reject) {
-            _this.connection.query('SELECT * FROM Users WHERE Uuid = ?', [uuid], function (error, results, fields) {
+    }
+    getUser(uuid) {
+        return new Promise((resolve, reject) => {
+            this.connection.query('SELECT * FROM Users WHERE Uuid = ?', [uuid], function (error, results, fields) {
                 if (error) {
                     return reject(error);
                 }
                 return resolve(results);
             });
         });
-    };
-    Database.prototype.getAllPairs = function () {
-        var _this = this;
-        return new Promise(function (resolve, reject) {
-            _this.connection.query('SELECT * FROM Pairs p WHERE p.Used = false ORDER BY p.DateAdded ASC', function (error, results, fields) {
+    }
+    getAllPairs() {
+        return new Promise((resolve, reject) => {
+            this.connection.query('SELECT * FROM Pairs p WHERE p.Used = false ORDER BY p.DateAdded ASC', function (error, results, fields) {
                 if (error) {
                     return reject(error);
                 }
                 return resolve(results);
             });
         });
-    };
-    Database.prototype.getPairs = function (uuid) {
-        var _this = this;
-        return new Promise(function (resolve, reject) {
-            _this.connection.query('SELECT p.Id, p.UserId, p.ServerSeed, p.ServerHash, p.UserSeed, p.Result, p.DateAdded FROM Pairs p LEFT JOIN Users u ON u.Id = p.UserId WHERE u.Uuid = ? AND p.Used = false ORDER BY p.DateAdded ASC', [uuid], function (error, results, fields) {
+    }
+    getPairs(uuid) {
+        return new Promise((resolve, reject) => {
+            this.connection.query('SELECT p.Id, p.UserId, p.ServerSeed, p.ServerHash, p.UserSeed, p.Result, p.DateAdded FROM Pairs p LEFT JOIN Users u ON u.Id = p.UserId WHERE u.Uuid = ? AND p.Used = false ORDER BY p.DateAdded ASC', [uuid], function (error, results, fields) {
                 if (error) {
                     return reject(error);
                 }
                 return resolve(results);
             });
         });
-    };
-    Database.prototype.addUser = function (uuid) {
-        var _this = this;
-        return new Promise(function (resolve, reject) {
-            _this.connection.query('INSERT INTO Users SET ?', { uuid: uuid }, function (error, results, fields) {
+    }
+    addUser(uuid) {
+        return new Promise((resolve, reject) => {
+            this.connection.query('INSERT INTO Users SET ?', { uuid: uuid }, function (error, results, fields) {
                 if (error) {
                     return reject(error);
                 }
                 return resolve(results);
             });
         });
-    };
-    Database.prototype.addPair = function (userId, serverSeed, serverHash, userSeed, result) {
-        var _this = this;
-        return new Promise(function (resolve, reject) {
-            _this.connection.query('INSERT INTO Pairs SET ?', {
+    }
+    addPair(userId, serverSeed, serverHash, userSeed, result) {
+        return new Promise((resolve, reject) => {
+            this.connection.query('INSERT INTO Pairs SET ?', {
                 UserId: userId,
                 ServerSeed: serverSeed,
                 ServerHash: serverHash,
@@ -94,34 +87,31 @@ var Database = /** @class */ (function () {
                 return resolve(results);
             });
         });
-    };
-    Database.prototype.updateUser = function (uuid, osrs, newBalance) {
-        var _this = this;
-        var type = osrs ? 'BalanceOsrs' : 'BalanceRs';
-        return new Promise(function (resolve, reject) {
-            _this.connection.query("UPDATE Users SET " + type + " = ? WHERE Uuid = ?", [newBalance, uuid], function (error, results, fields) {
+    }
+    updateUser(uuid, osrs, newBalance) {
+        const type = osrs ? 'BalanceOsrs' : 'BalanceRs';
+        return new Promise((resolve, reject) => {
+            this.connection.query(`UPDATE Users SET ${type} = ? WHERE Uuid = ?`, [newBalance, uuid], function (error, results, fields) {
                 if (error) {
                     return reject(error);
                 }
                 return resolve(results);
             });
         });
-    };
-    Database.prototype.voidPair = function (pairId) {
-        var _this = this;
-        return new Promise(function (resolve, reject) {
-            _this.connection.query("UPDATE Pairs SET Used = true WHERE Id = ?", [pairId], function (error, results, fields) {
+    }
+    voidPair(pairId) {
+        return new Promise((resolve, reject) => {
+            this.connection.query(`UPDATE Pairs SET Used = true WHERE Id = ?`, [pairId], function (error, results, fields) {
                 if (error) {
                     return reject(error);
                 }
                 return resolve(results);
             });
         });
-    };
-    Database.prototype.addGame = function (pairId, amount, win, gameType, server) {
-        var _this = this;
-        return new Promise(function (resolve, reject) {
-            _this.connection.query('INSERT INTO Games SET ?', {
+    }
+    addGame(pairId, amount, win, gameType, server) {
+        return new Promise((resolve, reject) => {
+            this.connection.query('INSERT INTO Games SET ?', {
                 PairId: pairId,
                 Amount: amount,
                 Win: win,
@@ -134,60 +124,55 @@ var Database = /** @class */ (function () {
                 return resolve(results);
             });
         });
-    };
-    Database.prototype.getUserStatistics = function (uuid, server) {
-        var _this = this;
-        return new Promise(function (resolve, reject) {
-            _this.connection.query('SELECT u.Id, SUM(g.Amount) as Sum, WEEK(g.DateAdded) as Week, g.Server FROM Games g JOIN Pairs p ON p.Id = g.PairId JOIN Users u ON u.Id = p.UserId WHERE u.uuid = ? AND g.server = ? GROUP BY WEEK(g.DateAdded)', [uuid, server], function (error, results, fields) {
+    }
+    getUserStatistics(uuid, server) {
+        return new Promise((resolve, reject) => {
+            this.connection.query('SELECT u.Id, SUM(g.Amount) as Sum, WEEK(g.DateAdded) as Week, g.Server FROM Games g JOIN Pairs p ON p.Id = g.PairId JOIN Users u ON u.Id = p.UserId WHERE u.uuid = ? AND g.server = ? GROUP BY WEEK(g.DateAdded)', [uuid, server], function (error, results, fields) {
                 if (error) {
                     return reject(error);
                 }
                 return resolve(results);
             });
         });
-    };
-    Database.prototype.getUserWeeklyStatistics = function (uuid, server, weekNumber) {
-        var _this = this;
-        return new Promise(function (resolve, reject) {
-            _this.connection.query('SELECT u.Id, SUM(g.Amount) as Sum, WEEK(g.DateAdded) as Week FROM Games g JOIN Pairs p ON p.Id = g.PairId JOIN Users u ON u.Id = p.UserId WHERE u.uuid = ? AND g.server = ? AND WEEK(g.DateAdded) = ?', [uuid, server, weekNumber], function (error, results, fields) {
+    }
+    getUserWeeklyStatistics(uuid, server, weekNumber) {
+        return new Promise((resolve, reject) => {
+            this.connection.query('SELECT u.Id, SUM(g.Amount) as Sum, WEEK(g.DateAdded) as Week FROM Games g JOIN Pairs p ON p.Id = g.PairId JOIN Users u ON u.Id = p.UserId WHERE u.uuid = ? AND g.server = ? AND WEEK(g.DateAdded) = ?', [uuid, server, weekNumber], function (error, results, fields) {
                 if (error) {
                     return reject(error);
                 }
                 return resolve(results);
             });
         });
-    };
-    Database.prototype.getUsersWeeklyStatistics = function (server, weekNumber) {
-        var _this = this;
-        return new Promise(function (resolve, reject) {
-            _this.connection.query('SELECT u.Id, U.Uuid, SUM(g.Amount) as Sum, WEEK(g.DateAdded) as Week FROM Games g JOIN Pairs p ON p.Id = g.PairId JOIN Users u ON u.Id = p.UserId AND g.server = ? AND WEEK(g.DateAdded) = ? ORDER BY Sum DESC LIMIT 10', [server, weekNumber], function (error, results, fields) {
+    }
+    getUsersWeeklyStatistics(server, weekNumber) {
+        return new Promise((resolve, reject) => {
+            this.connection.query('SELECT u.Id, U.Uuid, SUM(g.Amount) as Sum, WEEK(g.DateAdded) as Week FROM Games g JOIN Pairs p ON p.Id = g.PairId JOIN Users u ON u.Id = p.UserId AND g.server = ? AND WEEK(g.DateAdded) = ? ORDER BY Sum DESC LIMIT 10', [server, weekNumber], function (error, results, fields) {
                 if (error) {
                     return reject(error);
                 }
                 return resolve(results);
             });
         });
-    };
-    Database.prototype.getUsersStatistics = function (server) {
-        var _this = this;
-        return new Promise(function (resolve, reject) {
-            _this.connection.query('SELECT u.Id, U.Uuid, SUM(g.Amount) as Sum, WEEK(g.DateAdded) as Week FROM Games g JOIN Pairs p ON p.Id = g.PairId JOIN Users u ON u.Id = p.UserId AND g.server = ? ORDER BY Sum DESC LIMIT 10', [server], function (error, results, fields) {
+    }
+    getUsersStatistics(server) {
+        return new Promise((resolve, reject) => {
+            this.connection.query('SELECT u.Id, U.Uuid, SUM(g.Amount) as Sum, WEEK(g.DateAdded) as Week FROM Games g JOIN Pairs p ON p.Id = g.PairId JOIN Users u ON u.Id = p.UserId AND g.server = ? ORDER BY Sum DESC LIMIT 10', [server], function (error, results, fields) {
                 if (error) {
                     return reject(error);
                 }
                 return resolve(results);
             });
         });
-    };
-    Database.prototype.addTransaction = function (CashierUuid, UserId, Amount, Server, CashIn) {
-        var _this = this;
-        return new Promise(function (resolve, reject) {
-            _this.connection.query('INSERT INTO Transactions SET ?', {
-                CashierUuid: CashierUuid,
-                UserId: UserId,
-                Amount: Amount,
-                Server: Server,
-                CashIn: CashIn
+    }
+    addTransaction(CashierUuid, UserId, Amount, Server, CashIn) {
+        return new Promise((resolve, reject) => {
+            this.connection.query('INSERT INTO Transactions SET ?', {
+                CashierUuid,
+                UserId,
+                Amount,
+                Server,
+                CashIn
             }, function (error, results, fields) {
                 if (error) {
                     return reject(error);
@@ -195,19 +180,17 @@ var Database = /** @class */ (function () {
                 return resolve(results);
             });
         });
-    };
-    Database.prototype.getTransactions = function (Server, CashIn) {
-        var _this = this;
-        return new Promise(function (resolve, reject) {
-            _this.connection.query('SELECT Transactions.Id, CashierUuid, Users.Uuid as UserUuid, Amount, Server, CashIn, Transactions.DateAdded FROM Transactions JOIN Users ON Users.Id = Transactions.UserId  WHERE Server = ? AND CashIn = ? ORDER BY DateAdded DESC LIMIT 50', [Server, CashIn], function (error, results, fields) {
+    }
+    getTransactions(Server, CashIn) {
+        return new Promise((resolve, reject) => {
+            this.connection.query('SELECT Transactions.Id, CashierUuid, Users.Uuid as UserUuid, Amount, Server, CashIn, Transactions.DateAdded FROM Transactions JOIN Users ON Users.Id = Transactions.UserId  WHERE Server = ? AND CashIn = ? ORDER BY DateAdded DESC LIMIT 50', [Server, CashIn], function (error, results, fields) {
                 if (error) {
                     return reject(error);
                 }
                 return resolve(results);
             });
         });
-    };
-    return Database;
-}());
+    }
+}
 exports.Database = Database;
 //# sourceMappingURL=database.js.map

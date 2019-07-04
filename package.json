@@ -1,0 +1,26 @@
+{
+  "name": "discord-gambling-bot",
+  "version": "1.0.0",
+  "description": "Discord Gambling Bot (tsc)",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/toolazytobetrue/discord-gambling-bot.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/toolazytobetrue/discord-gambling-bot/issues"
+  },
+  "homepage": "https://github.com/toolazytobetrue/discord-gambling-bot#readme",
+  "dependencies": {
+    "discord.js": "^11.5.1",
+    "dotenv": "^8.0.0",
+    "moment": "^2.24.0",
+    "mysql": "^2.17.1",
+    "typescript": "^3.5.2"
+  }
+}

@@ -10,8 +10,8 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var crypto_1 = __importDefault(require("crypto"));
-var Discord = __importStar(require("discord.js"));
+const crypto_1 = __importDefault(require("crypto"));
+const Discord = __importStar(require("discord.js"));
 function getMultiplier(message) {
     if (message.includes('k')) {
         return 1e3;
@@ -44,15 +44,15 @@ function getServer(osrs) {
 exports.getServer = getServer;
 function minifyBalance(balance) {
     if (Math.abs(balance / 1e9) > 1) {
-        return (balance / 1e9).toFixed(2) + "b";
+        return `${(balance / 1e9).toFixed(2)}b`;
     }
     if (Math.abs(balance / 1e6) > 1) {
-        return (balance / 1e6).toFixed(2) + "m";
+        return `${(balance / 1e6).toFixed(2)}m`;
     }
     if (Math.abs(balance / 1e3) > 1) {
-        return (balance / 1e3).toFixed(2) + "k";
+        return `${(balance / 1e3).toFixed(2)}k`;
     }
-    return "" + balance;
+    return `${balance}`;
 }
 exports.minifyBalance = minifyBalance;
 function generateRandomString(sizeBytes) {
@@ -68,12 +68,12 @@ function generateHash(key, text) {
 exports.generateHash = generateHash;
 function roll(key, text) {
     // create HMAC using server seed as key and client seed as message
-    var hash = crypto_1.default
+    const hash = crypto_1.default
         .createHmac('sha512', key)
         .update(text)
         .digest('hex');
-    var index = 0;
-    var lucky = parseInt(hash.substring(index * 5, index * 5 + 5), 16);
+    let index = 0;
+    let lucky = parseInt(hash.substring(index * 5, index * 5 + 5), 16);
     // keep grabbing characters from the hash while greater than
     while (lucky >= Math.pow(10, 6)) {
         index++;
@@ -90,9 +90,7 @@ function roll(key, text) {
 }
 exports.roll = roll;
 ;
-function embeddedInstance(title, description, color, img) {
-    if (color === void 0) { color = '#00ff00'; }
-    if (img === void 0) { img = ''; }
+function embeddedInstance(title, description, color = '#00ff00', img = '') {
     return new Discord.RichEmbed()
         .setTitle(title)
         .setDescription(description)
