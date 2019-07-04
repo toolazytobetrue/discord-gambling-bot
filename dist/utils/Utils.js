@@ -122,4 +122,22 @@ function getGameType(command) {
     return '';
 }
 exports.getGameType = getGameType;
+function isAllowedToCashIn(balance, toModify) {
+    const sum = balance + toModify;
+    const maxBalance = process.env.DISCORD_CASHIER_MAX_BALANCE;
+    const maxBalanceAmount = getAmount(maxBalance);
+    const maxBalanceMultiplier = getMultiplier(maxBalance);
+    const max = maxBalanceAmount * maxBalanceMultiplier;
+    return sum <= max;
+}
+exports.isAllowedToCashIn = isAllowedToCashIn;
+function isAllowedToCashOut(balance, toModify) {
+    const sum = balance + toModify;
+    const minBalance = process.env.DISCORD_CASHIER_MIN_BALANCE;
+    const minBalanceAmount = getAmount(minBalance);
+    const minBalanceMultiplier = getMultiplier(minBalance);
+    const min = minBalanceAmount * minBalanceMultiplier;
+    return min <= sum;
+}
+exports.isAllowedToCashOut = isAllowedToCashOut;
 //# sourceMappingURL=Utils.js.map

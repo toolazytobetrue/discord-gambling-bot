@@ -11,4 +11,5 @@ export interface IUser {
     getUserStatistics(uuid: string, server: string): Promise<mysql.MysqlError | any>;
     getUserWeeklyStatistics(uuid: string, server: string, weekNumber: number): Promise<mysql.MysqlError | any>;
     getUsersWeeklyStatistics(server: string, weekNumber: number): Promise<mysql.MysqlError | any>;
+    getUserCashInOuts(CashierUuid: string, Server: string, CashIn: boolean): Promise<any>;
 }

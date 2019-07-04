@@ -86,4 +86,13 @@ export class User implements IUser {
         const results = await this.dbInstance.getUsersWeeklyStatistics(server, weekNumber);
         return Promise.resolve(results);
     };
+
+    async getUserCashInOuts(CashierUuid: string, Server: string, CashIn: boolean) {
+        const results = await this.dbInstance.getUserCashInOuts(CashierUuid, Server, CashIn);
+        if (results.length === 1) {
+            return Promise.resolve(results[0].Amount);
+        } else {
+            return Promise.resolve(0);
+        }
+    }
 }

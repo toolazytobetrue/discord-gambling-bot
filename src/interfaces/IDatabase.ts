@@ -16,4 +16,5 @@ export interface IDatabase {
     getUsersWeeklyStatistics(server: string, weekNumber: number): Promise<any>;
     addTransaction(CashierUuid: string, UserId: number, Amount: string, Server: string, CashIn: boolean): Promise<any>;
     getTransactions(Server: string, CashIn: boolean): Promise<any>;
+    getUserCashInOuts(CashierUuid: string, Server: string, CashIn: boolean): Promise<any>;
 }

@@ -2,7 +2,7 @@ import * as Discord from "discord.js";
 import { IDatabase } from "../interfaces/IDatabase";
 import { User } from "../models/User.model";
 import { IUser } from "../interfaces/IUSer";
-import { minifyBalance, getAmount, getMultiplier, getServer, generateHash, roll, embeddedInstance, embeddedError, embeddedRollimage, getGameType } from "../utils/Utils";
+import { minifyBalance, getAmount, getMultiplier, getServer, generateHash, roll, embeddedInstance, embeddedError, embeddedRollimage, getGameType, isAllowedToCashIn,isAllowedToCashOut } from "../utils/Utils";
 import { IGames } from "../interfaces/IGames";
 import moment from 'moment';
 import { ITransactions } from "../interfaces/ITransactions";
@@ -19,7 +19,6 @@ export class Responses {
         '!44x2', '@44x2', '!54x2', '@54x2',
         '!92x10', '@92x10', '!75x3', '@75x3',
         '!weekly', '@weekly',
-        '@weeklystatistics', '!weeklystatistics',
         '!allowed', '@allowed'
     ];
 
@@ -85,6 +84,9 @@ export class Responses {
                         return;
                     }
 
+
+                    const osrs = server === '07';
+
                     if (getAmount(amount) === 0) {
                         msg.reply(embeddedError(`Invalid amount to deposit.`));
                         return;
@@ -94,12 +96,14 @@ export class Responses {
                         msg.reply(embeddedError(`Invalid currency to use.`));
                         return;
                     }
-                    const processEnvMaxCashin: any = process.env.DISCORD_CASHIER_MAX_CASHIN;
 
-                    if (getAmount(processEnvMaxCashin) < getAmount(amount)) {
-                        msg.reply(embeddedError(`Cannot cash in more than allowed.`));
-                        return;
-                    }
+                    // const cashierBalance = await this.userInstance.getUserCashInOuts(id, getServer(osrs), true);
+                    // const isAllowedToCashInBool = isAllowedToCashIn(cashierBalance, getAmount(amount) * getMultiplier(amount));
+
+                    // if (!isAllowedToCashInBool) {
+                    //     msg.reply(embeddedError(`Cannot cash out more than allowed.\n${msg.member.user}'s current balance: ${minifyBalance(cashierBalance)}`));
+                    //     return;
+                    // }
 
                     if (!depositRole) {
                         msg.reply(embeddedError(`You do not have access to deposit funds.`));
@@ -118,7 +122,6 @@ export class Responses {
 
                     try {
                         const targetUser = await this.userInstance.getUser(mentionedMember.user.id);
-                        const osrs = server === '07';
                         const targetCurrentBalance = osrs ? targetUser.BalanceOsrs : targetUser.BalanceRs;
                         const amountToAdd = getAmount(amount) * getMultiplier(amount);
                         const newBalance = amountToAdd + targetCurrentBalance;
@@ -155,13 +158,14 @@ export class Responses {
                         msg.reply(embeddedError(`Invalid currency to use.`));
                         return;
                     }
+                    const osrs = server === '07';
+                    // const cashierBalance = await this.userInstance.getUserCashInOuts(id, getServer(osrs), true);
+                    // const isAllowedToCashOutBool = isAllowedToCashOut(cashierBalance, getAmount(amount) * getMultiplier(amount));
 
-                    const processEnvMaxCashout: any = process.env.DISCORD_CASHIER_MAX_CASHOUT;
-
-                    if (getAmount(processEnvMaxCashout) < getAmount(amount)) {
-                        msg.reply(embeddedError(`Cannot cash out more than allowed.`));
-                        return;
-                    }
+                    // if (!isAllowedToCashOutBool) {
+                    //     msg.reply(embeddedError(`Cannot cash out more than allowed.\n${msg.member.user}'s current balance: ${minifyBalance(cashierBalance)}`));
+                    //     return;
+                    // }
 
                     if (!depositRole) {
                         msg.reply(embeddedError(`You do not have access to withdraw funds.`));
@@ -179,7 +183,6 @@ export class Responses {
                     }
                     try {
                         const targetUser = await this.userInstance.getUser(mentionedMember.user.id);
-                        const osrs = server === '07';
                         const targetCurrentBalance = osrs ? targetUser.BalanceOsrs : targetUser.BalanceRs;
                         const amountToDeduce = getAmount(amount) * getMultiplier(amount);
                         const newBalance = targetCurrentBalance - amountToDeduce;
@@ -207,15 +210,12 @@ export class Responses {
                     let serverType = server === '07' ? 'OSRS' : 'RS3';
                     const results = await this.userInstance.getUsersWeeklyStatistics(serverType, now.week() - 1);
                     let reply = '';
-                    if (results.length === 1) {
-                        if (results[0].Id === null) {
-                            reply = 'No data to display'
-                        } else {
-                            for (let i = 0; i < results.length; i++) {
-                                const result = results[i];
-                                const user = this.server.members.find(member => member.id === result.Uuid);
-                                reply += `**#${i + 1} ${user ? user : result.Uuid}** - ${minifyBalance(result.Sum)}\n`;
-                            }
+
+                    if (results.length > 0) {
+                        for (let i = 0; i < results.length; i++) {
+                            const result = results[i];
+                            const user = this.server.members.find(member => member.id === result.Uuid);
+                            reply += `**#${i + 1} ${user ? user : result.Uuid}** - ${minifyBalance(result.Sum)}\n`;
                         }
                     }
                     msg.reply(embeddedInstance(`__Top 10 players statistics (week ${now.week()})__:`, reply, '00ffef'));
@@ -380,8 +380,8 @@ export class Responses {
                         let reply = `__Server seed revealed__: **${pair.ServerSeed}**\n`;
                         reply += `__Server hash__: **${pair.ServerHash}**\n`;
                         reply += `__Client seed__: **${pair.UserSeed}**\n`;
-                        reply += `__Result__: **${pair.Result}**\n`;
-                        reply += `You have rolled a ${pair.Result}, you have ${winBool ? 'won ' + minifyBalance(+amountToAdd) : 'lost ' + minifyBalance(+amountToDeduce)}!\n`;
+                        reply += `__Result__: **${Math.floor(pair.Result)}**\n`;
+                        reply += `You have rolled a **${Math.floor(pair.Result)}**, you have ${winBool ? 'won ' + minifyBalance(+amountToAdd) : 'lost ' + minifyBalance(+amountToDeduce)}!\n`;
                         reply += `To verify the result: !verify **serverSeed** **clientSeed**`;
 
                         // let sentMessage: any = await msg.reply(embeddedRollimage('https://i.imgur.com/F67CPB8.gif'))
@@ -389,7 +389,7 @@ export class Responses {
                         //     sentMessage.edit(embeddedInstance('Game results', reply));
                         // }, 3250);
 
-                        let sentMessage = await msg.reply(embeddedInstance('Game results', reply, '00ff00'));
+                        let sentMessage = await msg.reply(embeddedInstance(`**${getGameType(messages[0])}**`, reply, '00ff00'));
 
                     } catch (error) {
                         console.log(error);

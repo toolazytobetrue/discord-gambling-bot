@@ -99,6 +99,17 @@ class User {
         });
     }
     ;
+    getUserCashInOuts(CashierUuid, Server, CashIn) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const results = yield this.dbInstance.getUserCashInOuts(CashierUuid, Server, CashIn);
+            if (results.length === 1) {
+                return Promise.resolve(results[0].Amount);
+            }
+            else {
+                return Promise.resolve(0);
+            }
+        });
+    }
 }
 exports.User = User;
 //# sourceMappingURL=User.js.map
