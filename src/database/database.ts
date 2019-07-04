@@ -9,7 +9,7 @@ export class Database implements IDatabase {
 
     connect(): Promise<mysql.MysqlError | null> {
         return new Promise((resolve, reject) => {
-            this.connection.connect(err => {
+            this.connection.connect((err: any) => {
                 if (err) {
                     return reject(err);
                 }
@@ -20,7 +20,7 @@ export class Database implements IDatabase {
 
     getUsers(): Promise<mysql.MysqlError | any> {
         return new Promise((resolve, reject) => {
-            this.connection.query('SELECT * FROM Users', function (error, results, fields) {
+            this.connection.query('SELECT * FROM Users', function (error: any, results: any, fields: any) {
                 if (error) {
                     return reject(error);
                 }
@@ -31,7 +31,7 @@ export class Database implements IDatabase {
 
     getUser(uuid: string): Promise<mysql.MysqlError | any> {
         return new Promise((resolve, reject) => {
-            this.connection.query('SELECT * FROM Users WHERE Uuid = ?', [uuid], function (error, results, fields) {
+            this.connection.query('SELECT * FROM Users WHERE Uuid = ?', [uuid], function (error: any, results: any, fields: any) {
                 if (error) {
                     return reject(error);
                 }
@@ -42,7 +42,7 @@ export class Database implements IDatabase {
 
     getAllPairs(): Promise<mysql.MysqlError | any> {
         return new Promise((resolve, reject) => {
-            this.connection.query('SELECT * FROM Pairs p WHERE p.Used = false ORDER BY p.DateAdded ASC', function (error, results, fields) {
+            this.connection.query('SELECT * FROM Pairs p WHERE p.Used = false ORDER BY p.DateAdded ASC', function (error: any, results: any, fields: any) {
                 if (error) {
                     return reject(error);
                 }
@@ -53,7 +53,7 @@ export class Database implements IDatabase {
 
     getPairs(uuid: string): Promise<mysql.MysqlError | any> {
         return new Promise((resolve, reject) => {
-            this.connection.query('SELECT p.Id, p.UserId, p.ServerSeed, p.ServerHash, p.UserSeed, p.Result, p.DateAdded FROM Pairs p LEFT JOIN Users u ON u.Id = p.UserId WHERE u.Uuid = ? AND p.Used = false ORDER BY p.DateAdded ASC', [uuid], function (error, results, fields) {
+            this.connection.query('SELECT p.Id, p.UserId, p.ServerSeed, p.ServerHash, p.UserSeed, p.Result, p.DateAdded FROM Pairs p LEFT JOIN Users u ON u.Id = p.UserId WHERE u.Uuid = ? AND p.Used = false ORDER BY p.DateAdded ASC', [uuid], function (error: any, results: any, fields: any) {
                 if (error) {
                     return reject(error);
                 }
@@ -64,7 +64,7 @@ export class Database implements IDatabase {
 
     addUser(uuid: string): Promise<mysql.MysqlError | any> {
         return new Promise((resolve, reject) => {
-            this.connection.query('INSERT INTO Users SET ?', { uuid: uuid }, function (error, results, fields) {
+            this.connection.query('INSERT INTO Users SET ?', { uuid: uuid }, function (error: any, results: any, fields: any) {
                 if (error) {
                     return reject(error);
                 }
@@ -81,7 +81,7 @@ export class Database implements IDatabase {
                 ServerHash: serverHash,
                 UserSeed: userSeed,
                 Result: result
-            }, function (error, results, fields) {
+            }, function (error: any, results: any, fields: any) {
                 if (error) {
                     return reject(error);
                 }
@@ -93,7 +93,7 @@ export class Database implements IDatabase {
     updateUser(uuid: string, osrs: boolean, newBalance: number): Promise<mysql.MysqlError | any> {
         const type = osrs ? 'BalanceOsrs' : 'BalanceRs';
         return new Promise((resolve, reject) => {
-            this.connection.query(`UPDATE Users SET ${type} = ? WHERE Uuid = ?`, [newBalance, uuid], function (error, results, fields) {
+            this.connection.query(`UPDATE Users SET ${type} = ? WHERE Uuid = ?`, [newBalance, uuid], function (error: any, results: any, fields: any) {
                 if (error) {
                     return reject(error);
                 }
@@ -104,7 +104,7 @@ export class Database implements IDatabase {
 
     voidPair(pairId: number): Promise<any> {
         return new Promise((resolve, reject) => {
-            this.connection.query(`UPDATE Pairs SET Used = true WHERE Id = ?`, [pairId], function (error, results, fields) {
+            this.connection.query(`UPDATE Pairs SET Used = true WHERE Id = ?`, [pairId], function (error: any, results: any, fields: any) {
                 if (error) {
                     return reject(error);
                 }
@@ -115,13 +115,13 @@ export class Database implements IDatabase {
 
     addGame(pairId: number, amount: string, win: boolean, gameType: string, server: string): Promise<any> {
         return new Promise((resolve, reject) => {
-            this.connection.query('INSERT INTO Games SET ?', {
+            this.connection.query("INSERT INTO Games SET ?", {
                 PairId: pairId,
                 Amount: amount,
                 Win: win,
                 GameType: gameType,
                 Server: server
-            }, function (error, results, fields) {
+            }, function (error: any, results: any, fields: any) {
                 if (error) {
                     return reject(error);
                 }
@@ -132,7 +132,7 @@ export class Database implements IDatabase {
 
     getUserStatistics(uuid: string, server: string): Promise<any> {
         return new Promise((resolve, reject) => {
-            this.connection.query('SELECT u.Id, SUM(g.Amount) as Sum, WEEK(g.DateAdded) as Week, g.Server FROM Games g JOIN Pairs p ON p.Id = g.PairId JOIN Users u ON u.Id = p.UserId WHERE u.uuid = ? AND g.server = ? GROUP BY WEEK(g.DateAdded)', [uuid, server], function (error, results, fields) {
+            this.connection.query('SELECT u.Id, SUM(g.Amount) as Sum, WEEK(g.DateAdded) as Week, g.Server FROM Games g JOIN Pairs p ON p.Id = g.PairId JOIN Users u ON u.Id = p.UserId WHERE u.uuid = ? AND g.server = ? GROUP BY WEEK(g.DateAdded)', [uuid, server], function (error: any, results: any, fields: any) {
                 if (error) {
                     return reject(error);
                 }
@@ -143,7 +143,7 @@ export class Database implements IDatabase {
 
     getUserWeeklyStatistics(uuid: string, server: string, weekNumber: number): Promise<any> {
         return new Promise((resolve, reject) => {
-            this.connection.query('SELECT u.Id, SUM(g.Amount) as Sum, WEEK(g.DateAdded) as Week FROM Games g JOIN Pairs p ON p.Id = g.PairId JOIN Users u ON u.Id = p.UserId WHERE u.uuid = ? AND g.server = ? AND WEEK(g.DateAdded) = ?', [uuid, server, weekNumber], function (error, results, fields) {
+            this.connection.query('SELECT u.Id, SUM(g.Amount) as Sum, WEEK(g.DateAdded) as Week FROM Games g JOIN Pairs p ON p.Id = g.PairId JOIN Users u ON u.Id = p.UserId WHERE u.uuid = ? AND g.server = ? AND WEEK(g.DateAdded) = ?', [uuid, server, weekNumber], function (error: any, results: any, fields: any) {
                 if (error) {
                     return reject(error);
                 }
@@ -154,7 +154,7 @@ export class Database implements IDatabase {
 
     getUsersWeeklyStatistics(server: string, weekNumber: number): Promise<any> {
         return new Promise((resolve, reject) => {
-            this.connection.query('SELECT u.Id, U.Uuid, SUM(g.Amount) as Sum, WEEK(g.DateAdded) as Week FROM Games g JOIN Pairs p ON p.Id = g.PairId JOIN Users u ON u.Id = p.UserId AND g.server = ? AND WEEK(g.DateAdded) = ? ORDER BY Sum DESC LIMIT 10', [server, weekNumber], function (error, results, fields) {
+            this.connection.query('SELECT u.Id, U.Uuid, SUM(g.Amount) as Sum, WEEK(g.DateAdded) as Week FROM Games g JOIN Pairs p ON p.Id = g.PairId JOIN Users u ON u.Id = p.UserId AND g.server = ? AND WEEK(g.DateAdded) = ? ORDER BY Sum DESC LIMIT 10', [server, weekNumber], function (error: any, results: any, fields: any) {
                 if (error) {
                     return reject(error);
                 }
@@ -165,7 +165,7 @@ export class Database implements IDatabase {
 
     getUsersStatistics(server: string): Promise<any> {
         return new Promise((resolve, reject) => {
-            this.connection.query('SELECT u.Id, U.Uuid, SUM(g.Amount) as Sum, WEEK(g.DateAdded) as Week FROM Games g JOIN Pairs p ON p.Id = g.PairId JOIN Users u ON u.Id = p.UserId AND g.server = ? ORDER BY Sum DESC LIMIT 10', [server], function (error, results, fields) {
+            this.connection.query('SELECT u.Id, U.Uuid, SUM(g.Amount) as Sum, WEEK(g.DateAdded) as Week FROM Games g JOIN Pairs p ON p.Id = g.PairId JOIN Users u ON u.Id = p.UserId AND g.server = ? ORDER BY Sum DESC LIMIT 10', [server], function (error: any, results: any, fields: any) {
                 if (error) {
                     return reject(error);
                 }
@@ -182,7 +182,7 @@ export class Database implements IDatabase {
                 Amount,
                 Server,
                 CashIn
-            }, function (error, results, fields) {
+            }, function (error: any, results: any, fields: any) {
                 if (error) {
                     return reject(error);
                 }
@@ -193,7 +193,7 @@ export class Database implements IDatabase {
 
     getTransactions(Server: string, CashIn: boolean): Promise<any> {
         return new Promise((resolve, reject) => {
-            this.connection.query('SELECT Transactions.Id, CashierUuid, Users.Uuid as UserUuid, Amount, Server, CashIn, Transactions.DateAdded FROM Transactions JOIN Users ON Users.Id = Transactions.UserId  WHERE Server = ? AND CashIn = ? ORDER BY DateAdded DESC LIMIT 50', [Server, CashIn], function (error, results, fields) {
+            this.connection.query('SELECT Transactions.Id, CashierUuid, Users.Uuid as UserUuid, Amount, Server, CashIn, Transactions.DateAdded FROM Transactions JOIN Users ON Users.Id = Transactions.UserId  WHERE Server = ? AND CashIn = ? ORDER BY DateAdded DESC LIMIT 50', [Server, CashIn], function (error: any, results: any, fields: any) {
                 if (error) {
                     return reject(error);
                 }
