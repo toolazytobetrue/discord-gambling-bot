@@ -46,6 +46,11 @@ class User {
             return yield this.dbInstance.updateUser(uuid, osrs, newBalance);
         });
     }
+    updateCashier(uuid, flag, minBalance, maxLimit) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this.dbInstance.updateCashier(uuid, flag, minBalance, maxLimit);
+        });
+    }
     getUserPairs(uuid) {
         return __awaiter(this, void 0, void 0, function* () {
             const user = yield this.getUser(uuid);
@@ -99,17 +104,6 @@ class User {
         });
     }
     ;
-    getUserCashInOuts(CashierUuid, Server, CashIn) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const results = yield this.dbInstance.getUserCashInOuts(CashierUuid, Server, CashIn);
-            if (results.length === 1) {
-                return Promise.resolve(results[0].Amount);
-            }
-            else {
-                return Promise.resolve(0);
-            }
-        });
-    }
 }
 exports.User = User;
 //# sourceMappingURL=User.js.map

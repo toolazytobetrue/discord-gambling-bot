@@ -102,6 +102,17 @@ export class Database implements IDatabase {
         });
     }
 
+    updateCashier(uuid: string, flag: boolean, minBalance: number, maxLimit: number): Promise<mysql.MysqlError | any> {
+        return new Promise((resolve, reject) => {
+            this.connection.query(`UPDATE Users SET IsCashier = ?, MinBalance = ?, MaxCashIn = ? WHERE Uuid = ?`, [flag, minBalance, maxLimit, uuid], function (error: any, results: any, fields: any) {
+                if (error) {
+                    return reject(error);
+                }
+                return resolve(results);
+            });
+        });
+    }
+
     voidPair(pairId: number): Promise<any> {
         return new Promise((resolve, reject) => {
             this.connection.query(`UPDATE Pairs SET Used = true WHERE Id = ?`, [pairId], function (error: any, results: any, fields: any) {
@@ -193,7 +204,7 @@ export class Database implements IDatabase {
 
     getTransactions(Server: string, CashIn: boolean): Promise<any> {
         return new Promise((resolve, reject) => {
-            this.connection.query('SELECT Transactions.Id, CashierUuid, Users.Uuid as UserUuid, Amount, Server, CashIn, Transactions.DateAdded FROM Transactions JOIN Users ON Users.Id = Transactions.UserId  WHERE Server = ? AND CashIn = ? ORDER BY DateAdded DESC LIMIT 50', [Server, CashIn], function (error: any, results: any, fields: any) {
+            this.connection.query('SELECT Transactions.Id, CashierUuid, SUM(Amount) as Amount, Server, CashIn, Transactions.DateAdded FROM Transactions WHERE Server = ? AND CashIn = ? GROUP BY CashierUuid ORDER BY DateAdded DESC LIMIT 50', [Server, CashIn], function (error: any, results: any, fields: any) {
                 if (error) {
                     return reject(error);
                 }
@@ -202,9 +213,20 @@ export class Database implements IDatabase {
         });
     }
 
-    getUserCashInOuts(CashierUuid: string, Server: string, CashIn: boolean): Promise<any> {
+    getUserTransactions(CashierUuid: string, Server: string, CashIn: boolean): Promise<any> {
         return new Promise((resolve, reject) => {
-            this.connection.query('SELECT CashierUuid, Server, CashIn, SUM(Amount) as Amount FROM Transactions WHERE CashierUuid = ? AND Server = ? AND CashIn = ? GROUP BY CashIn, Server, CashierUuid', [CashierUuid, Server, CashIn], function (error: any, results: any, fields: any) {
+            this.connection.query('SELECT Transactions.Id, CashierUuid, SUM(Amount) as Amount, Server, CashIn, Transactions.DateAdded FROM Transactions WHERE CashierUuid = ? AND Server = ? AND CashIn = ? GROUP BY CashierUuid ORDER BY DateAdded DESC LIMIT 50', [CashierUuid, Server, CashIn], function (error: any, results: any, fields: any) {
+                if (error) {
+                    return reject(error);
+                }
+                return resolve(results);
+            });
+        });
+    }
+
+    deleteTxs(Uuid: string): Promise<any> {
+        return new Promise((resolve, reject) => {
+            this.connection.query('DELETE FROM Transactions Where CashierUuid = ?', [Uuid], function (error: any, results: any, fields: any) {
                 if (error) {
                     return reject(error);
                 }

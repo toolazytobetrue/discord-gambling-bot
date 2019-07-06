@@ -43,6 +43,10 @@ export class User implements IUser {
         return await this.dbInstance.updateUser(uuid, osrs, newBalance);
     }
 
+    async updateCashier(uuid: string, flag: boolean, minBalance: number, maxLimit: number): Promise<mysql.MysqlError | any> {
+        return await this.dbInstance.updateCashier(uuid, flag, minBalance, maxLimit);
+    }
+
     async getUserPairs(uuid: string): Promise<mysql.MysqlError | any> {
         const user = await this.getUser(uuid);
         const currentPairs = await this.dbInstance.getPairs(uuid);
@@ -86,13 +90,4 @@ export class User implements IUser {
         const results = await this.dbInstance.getUsersWeeklyStatistics(server, weekNumber);
         return Promise.resolve(results);
     };
-
-    async getUserCashInOuts(CashierUuid: string, Server: string, CashIn: boolean) {
-        const results = await this.dbInstance.getUserCashInOuts(CashierUuid, Server, CashIn);
-        if (results.length === 1) {
-            return Promise.resolve(results[0].Amount);
-        } else {
-            return Promise.resolve(0);
-        }
-    }
 }

@@ -23,7 +23,9 @@ class Responses {
             '!44x2', '@44x2', '!54x2', '@54x2',
             '!92x10', '@92x10', '!75x3', '@75x3',
             '!weekly', '@weekly',
-            '!allowed', '@allowed'
+            '!allowed', '@allowed',
+            '!setcashier', '@setcashier',
+            '!reset', '@reset'
         ];
         this.server = server;
         this.userInstance = userInstance;
@@ -95,18 +97,25 @@ class Responses {
                             msg.reply(Utils_1.embeddedError(`Invalid currency to use.`));
                             return;
                         }
-                        // const cashierBalance = await this.userInstance.getUserCashInOuts(id, getServer(osrs), true);
-                        // const isAllowedToCashInBool = isAllowedToCashIn(cashierBalance, getAmount(amount) * getMultiplier(amount));
-                        // if (!isAllowedToCashInBool) {
-                        //     msg.reply(embeddedError(`Cannot cash out more than allowed.\n${msg.member.user}'s current balance: ${minifyBalance(cashierBalance)}`));
-                        //     return;
-                        // }
+                        if (!mentionedMember) {
+                            msg.reply(Utils_1.embeddedError(`Please select a user to add funds to their wallet.`));
+                            return;
+                        }
                         if (!depositRole) {
                             msg.reply(Utils_1.embeddedError(`You do not have access to deposit funds.`));
                             return;
                         }
-                        if (!mentionedMember) {
-                            msg.reply(Utils_1.embeddedError(`Please select a user to add funds to their wallet.`));
+                        const cashier = yield this.userInstance.getUser(id);
+                        if (Utils_1.getAmount(amount) * Utils_1.getMultiplier(amount) > cashier.MaxCashIn) {
+                            msg.reply(Utils_1.embeddedError(`${msg.member.user} cannot cash in more than allowed.`));
+                            return;
+                        }
+                        const cashedIn = yield this.txInstance.getUserTransactions(id, Utils_1.getServer(osrs), true);
+                        const cashedOut = yield this.txInstance.getUserTransactions(id, Utils_1.getServer(osrs), false);
+                        const toBeAdded = Utils_1.getAmount(amount) * Utils_1.getMultiplier(amount);
+                        const available = Math.abs(cashedOut - (cashedIn + toBeAdded));
+                        if (-cashier.MinBalance >= -available) {
+                            msg.reply(Utils_1.embeddedError(`You have reached your max negative limit.`));
                             return;
                         }
                         if (!messages[3].includes(mentionedMember.user.id)) {
@@ -148,12 +157,6 @@ class Responses {
                             return;
                         }
                         const osrs = server === '07';
-                        // const cashierBalance = await this.userInstance.getUserCashInOuts(id, getServer(osrs), true);
-                        // const isAllowedToCashOutBool = isAllowedToCashOut(cashierBalance, getAmount(amount) * getMultiplier(amount));
-                        // if (!isAllowedToCashOutBool) {
-                        //     msg.reply(embeddedError(`Cannot cash out more than allowed.\n${msg.member.user}'s current balance: ${minifyBalance(cashierBalance)}`));
-                        //     return;
-                        // }
                         if (!depositRole) {
                             msg.reply(Utils_1.embeddedError(`You do not have access to withdraw funds.`));
                             return;
@@ -369,16 +372,13 @@ class Responses {
                     break;
                 case '!transactions':
                 case '@transactions':
-                    if (messages.length === 3) {
+                case '!txs':
+                case '@txs':
+                    if (messages.length == 3) {
                         const server = messages[1];
-                        const inOut = messages[2];
                         const depositRole = msg.member.roles.find(role => role.id === process.env.DISCORD_CASHIER_GROUP_ID);
                         if (server !== '07' && server !== 'rs3') {
                             msg.reply(Utils_1.embeddedError(`Invalid server to view transactions.`));
-                            return;
-                        }
-                        if (inOut !== 'in' && inOut !== 'out') {
-                            msg.reply(Utils_1.embeddedError(`Invalid cashing method.`));
                             return;
                         }
                         if (!depositRole) {
@@ -387,16 +387,83 @@ class Responses {
                         }
                         try {
                             const osrs = server === '07';
-                            const cashin = inOut === 'in';
-                            const txs = yield this.txInstance.getTransactions(Utils_1.getServer(osrs), cashin);
                             let reply = '';
-                            txs.forEach((tx) => {
-                                const cashier = this.server.members.find(member => member.id === tx.CashierUuid);
-                                const member = this.server.members.find(member => member.id === tx.UserUuid);
-                                const verb = tx.CashIn ? 'cashed in' : 'cashed out';
-                                reply += `${cashier ? cashier : tx.CashierUuid} ${verb} ${Utils_1.minifyBalance(tx.Amount)} ${tx.Server} for ${member ? member : tx.UserUuid}\n`;
-                            });
+                            const cashedIn = yield this.txInstance.getUserTransactions(mentionedMember.user.id, Utils_1.getServer(osrs), true);
+                            const cashedOut = yield this.txInstance.getUserTransactions(mentionedMember.user.id, Utils_1.getServer(osrs), false);
+                            reply += `[${Utils_1.getServer(osrs)}] ${mentionedMember} cashed in ${Utils_1.minifyBalance(cashedIn)}/cashed out ${Utils_1.minifyBalance(cashedOut)}\n`;
                             msg.author.send(Utils_1.embeddedInstance(`Last 50 transactions:`, reply));
+                        }
+                        catch (error) {
+                            console.log(error);
+                        }
+                    }
+                    break;
+                case '!reset':
+                case '@reset':
+                    const adminRole = msg.member.roles.find(role => role.id === process.env.DISCORD_ADMIN_GROUP_ID);
+                    if (!adminRole) {
+                        msg.reply(Utils_1.embeddedError(`You do not have access to set cashiers.`));
+                        return;
+                    }
+                    if (!mentionedMember) {
+                        msg.reply(Utils_1.embeddedError(`Please select a user to delete his transactions.`));
+                        return;
+                    }
+                    if (!messages[1].includes(mentionedMember.user.id)) {
+                        msg.reply(Utils_1.embeddedError(`User id doesn't match mentioned user.`));
+                        return;
+                    }
+                    const deleted = yield this.txInstance.deleteTxs(mentionedMember.user.id);
+                    let sentMessage = yield msg.reply(Utils_1.embeddedInstance(`**Transactions**`, `Successfully deleted all transactions for ${mentionedMember}.`, '00ff00'));
+                    break;
+                case '!setcashier':
+                case '@setcashier':
+                    /**
+                     * !setcashier user flag minBalance maxDeposit
+                     */
+                    if (messages.length == 5) {
+                        const adminRole = msg.member.roles.find(role => role.id === process.env.DISCORD_ADMIN_GROUP_ID);
+                        if (!adminRole) {
+                            msg.reply(Utils_1.embeddedError(`You do not have access to set cashiers.`));
+                            return;
+                        }
+                        if (!mentionedMember) {
+                            msg.reply(Utils_1.embeddedError(`Please select a user to withdraw funds from their wallet.`));
+                            return;
+                        }
+                        if (!messages[1].includes(mentionedMember.user.id)) {
+                            msg.reply(Utils_1.embeddedError(`User id doesn't match mentioned user.`));
+                            return;
+                        }
+                        if (messages[2] !== 'false' && messages[2] !== 'true') {
+                            msg.reply(Utils_1.embeddedError(`Error while setting cashier flag.`));
+                            return;
+                        }
+                        const flag = messages[2] === 'true' ? true : false;
+                        const _minBalance = messages[3];
+                        const _maxLimit = messages[4];
+                        if (Utils_1.getAmount(_minBalance) === 0) {
+                            msg.reply(Utils_1.embeddedError(`Invalid amount.`));
+                            return;
+                        }
+                        if (!_minBalance.includes('k') && !_minBalance.includes('m') && !_minBalance.includes('b')) {
+                            msg.reply(Utils_1.embeddedError(`Invalid currency to use.`));
+                            return;
+                        }
+                        if (Utils_1.getAmount(_maxLimit) === 0) {
+                            msg.reply(Utils_1.embeddedError(`Invalid amount.`));
+                            return;
+                        }
+                        if (!_maxLimit.includes('k') && !_maxLimit.includes('m') && !_maxLimit.includes('b')) {
+                            msg.reply(Utils_1.embeddedError(`Invalid currency to use.`));
+                            return;
+                        }
+                        const minBalance = Utils_1.getAmount(_minBalance) * Utils_1.getMultiplier(_minBalance);
+                        const maxLimit = Utils_1.getAmount(_maxLimit) * Utils_1.getMultiplier(_maxLimit);
+                        try {
+                            yield this.userInstance.updateCashier(mentionedMember.user.id, flag, minBalance, maxLimit);
+                            const reply = `Successfully did ${flag ? 'set' : 'unset'} ${mentionedMember} ${flag ? 'with max negative balance: ' + Utils_1.minifyBalance(minBalance) + ' and max deposit ' + Utils_1.minifyBalance(maxLimit) : ''}`;
+                            let sentMessage = yield msg.reply(Utils_1.embeddedInstance(`**Cashier Update**`, reply, '00ff00'));
                         }
                         catch (error) {
                             console.log(error);

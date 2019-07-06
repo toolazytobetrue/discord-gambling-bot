@@ -2,7 +2,7 @@ import * as Discord from "discord.js";
 import { IDatabase } from "../interfaces/IDatabase";
 import { User } from "../models/User.model";
 import { IUser } from "../interfaces/IUSer";
-import { minifyBalance, getAmount, getMultiplier, getServer, generateHash, roll, embeddedInstance, embeddedError, embeddedRollimage, getGameType, isAllowedToCashIn,isAllowedToCashOut } from "../utils/Utils";
+import { minifyBalance, getAmount, getMultiplier, getServer, generateHash, roll, embeddedInstance, embeddedError, embeddedRollimage, getGameType } from "../utils/Utils";
 import { IGames } from "../interfaces/IGames";
 import moment from 'moment';
 import { ITransactions } from "../interfaces/ITransactions";
@@ -19,7 +19,9 @@ export class Responses {
         '!44x2', '@44x2', '!54x2', '@54x2',
         '!92x10', '@92x10', '!75x3', '@75x3',
         '!weekly', '@weekly',
-        '!allowed', '@allowed'
+        '!allowed', '@allowed',
+        '!setcashier', '@setcashier',
+        '!reset', '@reset'
     ];
 
     constructor(server: Discord.Guild, userInstance: IUser, gamesInstance: IGames, txInstance: ITransactions) {
@@ -84,7 +86,6 @@ export class Responses {
                         return;
                     }
 
-
                     const osrs = server === '07';
 
                     if (getAmount(amount) === 0) {
@@ -97,21 +98,29 @@ export class Responses {
                         return;
                     }
 
-                    // const cashierBalance = await this.userInstance.getUserCashInOuts(id, getServer(osrs), true);
-                    // const isAllowedToCashInBool = isAllowedToCashIn(cashierBalance, getAmount(amount) * getMultiplier(amount));
-
-                    // if (!isAllowedToCashInBool) {
-                    //     msg.reply(embeddedError(`Cannot cash out more than allowed.\n${msg.member.user}'s current balance: ${minifyBalance(cashierBalance)}`));
-                    //     return;
-                    // }
+                    if (!mentionedMember) {
+                        msg.reply(embeddedError(`Please select a user to add funds to their wallet.`));
+                        return;
+                    }
 
                     if (!depositRole) {
                         msg.reply(embeddedError(`You do not have access to deposit funds.`));
                         return;
                     }
 
-                    if (!mentionedMember) {
-                        msg.reply(embeddedError(`Please select a user to add funds to their wallet.`));
+                    const cashier = await this.userInstance.getUser(id);
+
+                    if (getAmount(amount) * getMultiplier(amount) > cashier.MaxCashIn) {
+                        msg.reply(embeddedError(`${msg.member.user} cannot cash in more than allowed.`));
+                        return;
+                    }
+
+                    const cashedIn = await this.txInstance.getUserTransactions(id, getServer(osrs), true);
+                    const cashedOut = await this.txInstance.getUserTransactions(id, getServer(osrs), false);
+                    const toBeAdded = getAmount(amount) * getMultiplier(amount);
+                    const available = Math.abs(cashedOut - (cashedIn + toBeAdded));
+                    if (-cashier.MinBalance >= -available) {
+                        msg.reply(embeddedError(`You have reached your max negative limit.`));
                         return;
                     }
 
@@ -159,13 +168,6 @@ export class Responses {
                         return;
                     }
                     const osrs = server === '07';
-                    // const cashierBalance = await this.userInstance.getUserCashInOuts(id, getServer(osrs), true);
-                    // const isAllowedToCashOutBool = isAllowedToCashOut(cashierBalance, getAmount(amount) * getMultiplier(amount));
-
-                    // if (!isAllowedToCashOutBool) {
-                    //     msg.reply(embeddedError(`Cannot cash out more than allowed.\n${msg.member.user}'s current balance: ${minifyBalance(cashierBalance)}`));
-                    //     return;
-                    // }
 
                     if (!depositRole) {
                         msg.reply(embeddedError(`You do not have access to withdraw funds.`));
@@ -398,17 +400,13 @@ export class Responses {
                 break;
             case '!transactions':
             case '@transactions':
-                if (messages.length === 3) {
+            case '!txs':
+            case '@txs':
+                if (messages.length == 3) {
                     const server = messages[1];
-                    const inOut = messages[2];
                     const depositRole: Discord.Role = msg.member.roles.find(role => role.id === process.env.DISCORD_CASHIER_GROUP_ID);
                     if (server !== '07' && server !== 'rs3') {
                         msg.reply(embeddedError(`Invalid server to view transactions.`));
-                        return;
-                    }
-
-                    if (inOut !== 'in' && inOut !== 'out') {
-                        msg.reply(embeddedError(`Invalid cashing method.`));
                         return;
                     }
 
@@ -419,17 +417,96 @@ export class Responses {
 
                     try {
                         const osrs = server === '07';
-                        const cashin = inOut === 'in';
-                        const txs = await this.txInstance.getTransactions(getServer(osrs), cashin);
-
                         let reply = '';
-                        txs.forEach((tx: any) => {
-                            const cashier = this.server.members.find(member => member.id === tx.CashierUuid);
-                            const member = this.server.members.find(member => member.id === tx.UserUuid);
-                            const verb = tx.CashIn ? 'cashed in' : 'cashed out';
-                            reply += `${cashier ? cashier : tx.CashierUuid} ${verb} ${minifyBalance(tx.Amount)} ${tx.Server} for ${member ? member : tx.UserUuid}\n`;
-                        });
+
+                        const cashedIn = await this.txInstance.getUserTransactions(mentionedMember.user.id, getServer(osrs), true);
+                        const cashedOut = await this.txInstance.getUserTransactions(mentionedMember.user.id, getServer(osrs), false);
+
+                        reply += `[${getServer(osrs)}] ${mentionedMember} cashed in ${minifyBalance(cashedIn)}/cashed out ${minifyBalance(cashedOut)}\n`;
                         msg.author.send(embeddedInstance(`Last 50 transactions:`, reply));
+                    } catch (error) {
+                        console.log(error);
+                    }
+                }
+                break;
+            case '!reset':
+            case '@reset':
+                const adminRole: Discord.Role = msg.member.roles.find(role => role.id === process.env.DISCORD_ADMIN_GROUP_ID);
+                if (!adminRole) {
+                    msg.reply(embeddedError(`You do not have access to set cashiers.`));
+                    return;
+                }
+
+                if (!mentionedMember) {
+                    msg.reply(embeddedError(`Please select a user to delete his transactions.`));
+                    return;
+                }
+
+                if (!messages[1].includes(mentionedMember.user.id)) {
+                    msg.reply(embeddedError(`User id doesn't match mentioned user.`));
+                    return;
+                }
+
+                const deleted = await this.txInstance.deleteTxs(mentionedMember.user.id);
+                let sentMessage = await msg.reply(embeddedInstance(`**Transactions**`, `Successfully deleted all transactions for ${mentionedMember}.`, '00ff00'));
+                break;
+            case '!setcashier':
+            case '@setcashier':
+                /**
+                 * !setcashier user flag minBalance maxDeposit
+                 */
+                if (messages.length == 5) {
+                    const adminRole: Discord.Role = msg.member.roles.find(role => role.id === process.env.DISCORD_ADMIN_GROUP_ID);
+                    if (!adminRole) {
+                        msg.reply(embeddedError(`You do not have access to set cashiers.`));
+                        return;
+                    }
+
+                    if (!mentionedMember) {
+                        msg.reply(embeddedError(`Please select a user to withdraw funds from their wallet.`));
+                        return;
+                    }
+
+                    if (!messages[1].includes(mentionedMember.user.id)) {
+                        msg.reply(embeddedError(`User id doesn't match mentioned user.`));
+                        return;
+                    }
+
+                    if (messages[2] !== 'false' && messages[2] !== 'true') {
+                        msg.reply(embeddedError(`Error while setting cashier flag.`));
+                        return;
+                    }
+
+                    const flag = messages[2] === 'true' ? true : false;
+                    const _minBalance = messages[3];
+                    const _maxLimit = messages[4];
+                    if (getAmount(_minBalance) === 0) {
+                        msg.reply(embeddedError(`Invalid amount.`));
+                        return;
+                    }
+
+                    if (!_minBalance.includes('k') && !_minBalance.includes('m') && !_minBalance.includes('b')) {
+                        msg.reply(embeddedError(`Invalid currency to use.`));
+                        return;
+                    }
+
+                    if (getAmount(_maxLimit) === 0) {
+                        msg.reply(embeddedError(`Invalid amount.`));
+                        return;
+                    }
+
+                    if (!_maxLimit.includes('k') && !_maxLimit.includes('m') && !_maxLimit.includes('b')) {
+                        msg.reply(embeddedError(`Invalid currency to use.`));
+                        return;
+                    }
+
+                    const minBalance = getAmount(_minBalance) * getMultiplier(_minBalance);
+                    const maxLimit = getAmount(_maxLimit) * getMultiplier(_maxLimit);
+
+                    try {
+                        await this.userInstance.updateCashier(mentionedMember.user.id, flag, minBalance, maxLimit);
+                        const reply = `Successfully did ${flag ? 'set' : 'unset'} ${mentionedMember} ${flag ? 'with max negative balance: ' + minifyBalance(minBalance) + ' and max deposit ' + minifyBalance(maxLimit) : ''}`;
+                        let sentMessage = await msg.reply(embeddedInstance(`**Cashier Update**`, reply, '00ff00'));
                     } catch (error) {
                         console.log(error);
                     }

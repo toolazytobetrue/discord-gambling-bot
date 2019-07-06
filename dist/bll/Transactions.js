@@ -26,6 +26,23 @@ class Transactions {
             return Promise.resolve(txs);
         });
     }
+    getUserTransactions(CashierUuid, Server, CashIn) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const results = yield this.dbInstance.getUserTransactions(CashierUuid, Server, CashIn);
+            if (results.length === 1) {
+                return Promise.resolve(results[0].Amount);
+            }
+            else {
+                return Promise.resolve(0);
+            }
+        });
+    }
+    deleteTxs(Uuid) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const deleted = yield this.dbInstance.deleteTxs(Uuid);
+            return Promise.resolve(deleted);
+        });
+    }
 }
 exports.Transactions = Transactions;
 //# sourceMappingURL=Transactions.js.map

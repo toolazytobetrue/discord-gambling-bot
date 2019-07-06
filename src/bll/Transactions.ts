@@ -19,4 +19,18 @@ export class Transactions implements ITransactions {
         const txs = await this.dbInstance.getTransactions(Server, CashIn);
         return Promise.resolve(txs);
     }
+
+    async getUserTransactions(CashierUuid: string, Server: string, CashIn: boolean) {
+        const results = await this.dbInstance.getUserTransactions(CashierUuid, Server, CashIn);
+        if (results.length === 1) {
+            return Promise.resolve(results[0].Amount);
+        } else {
+            return Promise.resolve(0);
+        }
+    }
+
+    async deleteTxs(Uuid: string): Promise<any> {
+        const deleted = await this.dbInstance.deleteTxs(Uuid);
+        return Promise.resolve(deleted);
+    }
 }
