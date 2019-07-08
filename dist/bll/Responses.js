@@ -105,19 +105,25 @@ class Responses {
                             msg.reply(Utils_1.embeddedError(`You do not have access to deposit funds.`));
                             return;
                         }
-                        const cashier = yield this.userInstance.getUser(id);
-                        if (Utils_1.getAmount(amount) * Utils_1.getMultiplier(amount) > cashier.MaxCashIn) {
-                            msg.reply(Utils_1.embeddedError(`${msg.member.user} cannot cash in more than allowed.`));
+                        /**
+                         *
+                        
+                         const cashier = await this.userInstance.getUser(id);
+    
+                        if (getAmount(amount) * getMultiplier(amount) > cashier.MaxCashIn) {
+                            msg.reply(embeddedError(`${msg.member.user} cannot cash in more than allowed.`));
                             return;
                         }
-                        const cashedIn = yield this.txInstance.getUserTransactions(id, Utils_1.getServer(osrs), true);
-                        const cashedOut = yield this.txInstance.getUserTransactions(id, Utils_1.getServer(osrs), false);
-                        const toBeAdded = Utils_1.getAmount(amount) * Utils_1.getMultiplier(amount);
+    
+                        const cashedIn = await this.txInstance.getUserTransactions(id, getServer(osrs), true);
+                        const cashedOut = await this.txInstance.getUserTransactions(id, getServer(osrs), false);
+                        const toBeAdded = getAmount(amount) * getMultiplier(amount);
                         const available = Math.abs(cashedOut - (cashedIn + toBeAdded));
                         if (-cashier.MinBalance >= -available) {
-                            msg.reply(Utils_1.embeddedError(`You have reached your max negative limit.`));
+                            msg.reply(embeddedError(`You have reached your max negative limit.`));
                             return;
                         }
+                         */
                         if (!messages[3].includes(mentionedMember.user.id)) {
                             msg.reply(Utils_1.embeddedError(`User id doesn't match mentioned user.`));
                             return;
@@ -269,10 +275,13 @@ class Responses {
                 case '!allowed':
                 case '@allowed':
                     if (messages.length === 1) {
-                        const processEnvMaxCashin = process.env.DISCORD_CASHIER_MAX_CASHIN;
-                        const processEnvMaxCashout = process.env.DISCORD_CASHIER_MAX_CASHOUT;
-                        let reply = `__Max cash in__: **${processEnvMaxCashin}**\n`;
-                        reply += `__Max cash out__: **${processEnvMaxCashout}**`;
+                        const user = yield this.userInstance.getUser(id);
+                        if (!user.IsCashier) {
+                            msg.reply(Utils_1.embeddedError(`You do not have access to view allowed min balance & max cash in.`));
+                            return;
+                        }
+                        let reply = `__Max cash in__: **${Utils_1.minifyBalance(user.MaxCashIn)}**\n`;
+                        reply += `__Max negative balance__: **${Utils_1.minifyBalance(user.MinBalance)}**`;
                         msg.reply(Utils_1.embeddedInstance(`Cashier allowance`, reply, '00ffef'));
                     }
                     break;

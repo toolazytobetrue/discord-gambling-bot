@@ -108,7 +108,10 @@ export class Responses {
                         return;
                     }
 
-                    const cashier = await this.userInstance.getUser(id);
+                    /**
+                     * 
+                    
+                     const cashier = await this.userInstance.getUser(id);
 
                     if (getAmount(amount) * getMultiplier(amount) > cashier.MaxCashIn) {
                         msg.reply(embeddedError(`${msg.member.user} cannot cash in more than allowed.`));
@@ -123,6 +126,7 @@ export class Responses {
                         msg.reply(embeddedError(`You have reached your max negative limit.`));
                         return;
                     }
+                     */
 
                     if (!messages[3].includes(mentionedMember.user.id)) {
                         msg.reply(embeddedError(`User id doesn't match mentioned user.`));
@@ -286,10 +290,13 @@ export class Responses {
             case '!allowed':
             case '@allowed':
                 if (messages.length === 1) {
-                    const processEnvMaxCashin: any = process.env.DISCORD_CASHIER_MAX_CASHIN;
-                    const processEnvMaxCashout: any = process.env.DISCORD_CASHIER_MAX_CASHOUT;
-                    let reply = `__Max cash in__: **${processEnvMaxCashin}**\n`;
-                    reply += `__Max cash out__: **${processEnvMaxCashout}**`;
+                    const user = await this.userInstance.getUser(id);
+                    if (!user.IsCashier) {
+                        msg.reply(embeddedError(`You do not have access to view allowed min balance & max cash in.`));
+                        return;
+                    }
+                    let reply = `__Max cash in__: **${minifyBalance(user.MaxCashIn)}**\n`;
+                    reply += `__Max negative balance__: **${minifyBalance(user.MinBalance)}**`;
                     msg.reply(embeddedInstance(`Cashier allowance`, reply, '00ffef'));
                 }
                 break;
