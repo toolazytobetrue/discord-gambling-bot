@@ -39,7 +39,7 @@ export class Responses {
         if (this.commands.indexOf(command) === -1) {
             return;
         }
-        const { id, username, tag } = msg.member.user;
+        const { id, username, tag, avatarURL } = msg.member.user;
         switch (command) {
             case '!commands':
             case '@commands':
@@ -108,10 +108,7 @@ export class Responses {
                         return;
                     }
 
-                    /**
-                     * 
-                    
-                     const cashier = await this.userInstance.getUser(id);
+                    const cashier = await this.userInstance.getUser(id);
 
                     if (getAmount(amount) * getMultiplier(amount) > cashier.MaxCashIn) {
                         msg.reply(embeddedError(`${msg.member.user} cannot cash in more than allowed.`));
@@ -126,7 +123,7 @@ export class Responses {
                         msg.reply(embeddedError(`You have reached your max negative limit.`));
                         return;
                     }
-                     */
+
 
                     if (!messages[3].includes(mentionedMember.user.id)) {
                         msg.reply(embeddedError(`User id doesn't match mentioned user.`));
@@ -224,7 +221,7 @@ export class Responses {
                             reply += `**#${i + 1} ${user ? user : result.Uuid}** - ${minifyBalance(result.Sum)}\n`;
                         }
                     }
-                    msg.reply(embeddedInstance(`__Top 10 players statistics (week ${now.week()})__:`, reply, '00ffef'));
+                    msg.reply(embeddedInstance(`__Top 10 players statistics__:`, reply, '00ffef'));
                 }
                 break;
 
@@ -389,8 +386,9 @@ export class Responses {
                         let reply = `__Server seed revealed__: **${pair.ServerSeed}**\n`;
                         reply += `__Server hash__: **${pair.ServerHash}**\n`;
                         reply += `__Client seed__: **${pair.UserSeed}**\n`;
-                        reply += `__Result__: **${Math.floor(pair.Result)}**\n`;
-                        reply += `You have rolled a **${Math.floor(pair.Result)}**, you have ${winBool ? 'won ' + minifyBalance(+amountToAdd) : 'lost ' + minifyBalance(+amountToDeduce)}!\n`;
+                        const result = process.env.DISCORD_FLOOR_RESULT === 'true' ? Math.floor(pair.Result) : pair.Result;
+                        reply += `__Result__: **${result}**\n`;
+                        reply += `You have rolled a **${result}**, you have ${winBool ? 'won ' + minifyBalance(+amountToAdd) : 'lost ' + minifyBalance(+amountToDeduce)}!\n`;
                         reply += `To verify the result: !verify **serverSeed** **clientSeed**`;
 
                         // let sentMessage: any = await msg.reply(embeddedRollimage('https://i.imgur.com/F67CPB8.gif'))
@@ -398,7 +396,7 @@ export class Responses {
                         //     sentMessage.edit(embeddedInstance('Game results', reply));
                         // }, 3250);
 
-                        let sentMessage = await msg.reply(embeddedInstance(`**${getGameType(messages[0])}**`, reply, '00ff00'));
+                        let sentMessage = await msg.reply(embeddedInstance(`**__${getGameType(messages[0])} results__**`, reply, '00ff00', `${username} playing ${getGameType(messages[0])}`, avatarURL));
 
                     } catch (error) {
                         console.log(error);

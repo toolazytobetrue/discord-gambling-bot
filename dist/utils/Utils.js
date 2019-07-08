@@ -90,12 +90,14 @@ function roll(key, text) {
 }
 exports.roll = roll;
 ;
-function embeddedInstance(title, description, color = '#00ff00', img = '') {
+function embeddedInstance(title, description, color = '#00ff00', authorName = '', authorIcon = '', img, thumbnail) {
     return new Discord.RichEmbed()
         .setTitle(title)
         .setDescription(description)
         .setColor(color)
-        .setImage(img);
+        .setAuthor(authorName, authorIcon)
+        .setImage(img)
+        .setThumbnail(thumbnail);
 }
 exports.embeddedInstance = embeddedInstance;
 function embeddedRollimage(img) {

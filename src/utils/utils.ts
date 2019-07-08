@@ -83,12 +83,14 @@ export function roll(key: string, text: string): number {
     return lucky;
 };
 
-export function embeddedInstance(title: string, description: string, color = '#00ff00', img = '') {
+export function embeddedInstance(title: string, description: string, color = '#00ff00', authorName: any = '', authorIcon: any = '', img?: any, thumbnail?: any) {
     return new Discord.RichEmbed()
         .setTitle(title)
         .setDescription(description)
         .setColor(color)
-        .setImage(img);
+        .setAuthor(authorName, authorIcon)
+        .setImage(img)
+        .setThumbnail(thumbnail);
 }
 
 export function embeddedRollimage(img: string) {

@@ -41,7 +41,7 @@ class Responses {
             if (this.commands.indexOf(command) === -1) {
                 return;
             }
-            const { id, username, tag } = msg.member.user;
+            const { id, username, tag, avatarURL } = msg.member.user;
             switch (command) {
                 case '!commands':
                 case '@commands':
@@ -105,25 +105,19 @@ class Responses {
                             msg.reply(Utils_1.embeddedError(`You do not have access to deposit funds.`));
                             return;
                         }
-                        /**
-                         *
-                        
-                         const cashier = await this.userInstance.getUser(id);
-    
-                        if (getAmount(amount) * getMultiplier(amount) > cashier.MaxCashIn) {
-                            msg.reply(embeddedError(`${msg.member.user} cannot cash in more than allowed.`));
+                        const cashier = yield this.userInstance.getUser(id);
+                        if (Utils_1.getAmount(amount) * Utils_1.getMultiplier(amount) > cashier.MaxCashIn) {
+                            msg.reply(Utils_1.embeddedError(`${msg.member.user} cannot cash in more than allowed.`));
                             return;
                         }
-    
-                        const cashedIn = await this.txInstance.getUserTransactions(id, getServer(osrs), true);
-                        const cashedOut = await this.txInstance.getUserTransactions(id, getServer(osrs), false);
-                        const toBeAdded = getAmount(amount) * getMultiplier(amount);
+                        const cashedIn = yield this.txInstance.getUserTransactions(id, Utils_1.getServer(osrs), true);
+                        const cashedOut = yield this.txInstance.getUserTransactions(id, Utils_1.getServer(osrs), false);
+                        const toBeAdded = Utils_1.getAmount(amount) * Utils_1.getMultiplier(amount);
                         const available = Math.abs(cashedOut - (cashedIn + toBeAdded));
                         if (-cashier.MinBalance >= -available) {
-                            msg.reply(embeddedError(`You have reached your max negative limit.`));
+                            msg.reply(Utils_1.embeddedError(`You have reached your max negative limit.`));
                             return;
                         }
-                         */
                         if (!messages[3].includes(mentionedMember.user.id)) {
                             msg.reply(Utils_1.embeddedError(`User id doesn't match mentioned user.`));
                             return;
@@ -211,7 +205,7 @@ class Responses {
                                 reply += `**#${i + 1} ${user ? user : result.Uuid}** - ${Utils_1.minifyBalance(result.Sum)}\n`;
                             }
                         }
-                        msg.reply(Utils_1.embeddedInstance(`__Top 10 players statistics (week ${now.week()})__:`, reply, '00ffef'));
+                        msg.reply(Utils_1.embeddedInstance(`__Top 10 players statistics__:`, reply, '00ffef'));
                     }
                     break;
                 case '!statistics':
@@ -365,14 +359,15 @@ class Responses {
                             let reply = `__Server seed revealed__: **${pair.ServerSeed}**\n`;
                             reply += `__Server hash__: **${pair.ServerHash}**\n`;
                             reply += `__Client seed__: **${pair.UserSeed}**\n`;
-                            reply += `__Result__: **${Math.floor(pair.Result)}**\n`;
-                            reply += `You have rolled a **${Math.floor(pair.Result)}**, you have ${winBool ? 'won ' + Utils_1.minifyBalance(+amountToAdd) : 'lost ' + Utils_1.minifyBalance(+amountToDeduce)}!\n`;
+                            const result = process.env.DISCORD_FLOOR_RESULT === 'true' ? Math.floor(pair.Result) : pair.Result;
+                            reply += `__Result__: **${result}**\n`;
+                            reply += `You have rolled a **${result}**, you have ${winBool ? 'won ' + Utils_1.minifyBalance(+amountToAdd) : 'lost ' + Utils_1.minifyBalance(+amountToDeduce)}!\n`;
                             reply += `To verify the result: !verify **serverSeed** **clientSeed**`;
                             // let sentMessage: any = await msg.reply(embeddedRollimage('https://i.imgur.com/F67CPB8.gif'))
                             // setTimeout(() => {
                             //     sentMessage.edit(embeddedInstance('Game results', reply));
                             // }, 3250);
-                            let sentMessage = yield msg.reply(Utils_1.embeddedInstance(`**${Utils_1.getGameType(messages[0])}**`, reply, '00ff00'));
+                            let sentMessage = yield msg.reply(Utils_1.embeddedInstance(`**__${Utils_1.getGameType(messages[0])} results__**`, reply, '00ff00', `${username} playing ${Utils_1.getGameType(messages[0])}`, avatarURL));
                         }
                         catch (error) {
                             console.log(error);
